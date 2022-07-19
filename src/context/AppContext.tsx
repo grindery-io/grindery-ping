@@ -1,11 +1,13 @@
 import React, { useState, createContext, useEffect } from "react";
 import { EthereumAuthProvider, useViewerConnection } from "@self.id/framework";
-import _ from "lodash";
 import { initializeApp } from "firebase/app";
-//import { Workflow } from "../types/Workflow";
-import { Connector } from "../types/Connector";
 import { defaultFunc, getSelfIdCookie } from "../helpers/utils";
-import { getCDSFiles } from "../helpers/github";
+import { Workflow } from "../types/Workflow";
+import {
+  createWorkflow,
+  listWorkflows,
+  updateWorkflow,
+} from "../helpers/engine";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA36V03w7qZaOrfBtaxqk82iblwg88IsTQ",
@@ -18,6 +20,33 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
+
+const blankWorkflow: Workflow = {
+  title: "New workflow",
+  trigger: {
+    type: "trigger",
+    connector: "evmWallet",
+    operation: "newTransaction",
+    input: {
+      _grinderyChain: "eip155:1",
+      to: "",
+    },
+  },
+  actions: [
+    {
+      type: "action",
+      connector: "firebaseCloudMessaging",
+      operation: "sendPushNotification",
+      input: {
+        token: "",
+        title: "New deposit",
+        body: "New deposit to the wallet {{trigger.to}} has been made",
+      },
+    },
+  ],
+  creator: "",
+  state: "off",
+};
 
 declare global {
   interface Window {
@@ -37,8 +66,10 @@ type ContextProps = {
   user: any;
   setUser?: (a: any) => void;
   disconnect: any;
-  connectors: Connector[];
   wallet: string;
+  workflow: Workflow;
+  saveWorkflow: () => void;
+  editWorkflow: (a: Workflow) => void;
 };
 
 type AppContextProps = {
@@ -49,8 +80,10 @@ export const AppContext = createContext<ContextProps>({
   user: "",
   setUser: defaultFunc,
   disconnect: defaultFunc,
-  connectors: [],
   wallet: "",
+  workflow: blankWorkflow,
+  saveWorkflow: defaultFunc,
+  editWorkflow: defaultFunc,
 });
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
@@ -63,20 +96,11 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   // User wallet address
   const [wallet, setWallet] = useState("");
 
-  // connectors list
-  const [connectors, setConnectors] = useState<Connector[]>([]);
+  // workflow state
+  const [workflow, setWorkflow] = useState<Workflow>(blankWorkflow);
 
-  const getConnectors = async () => {
-    const responses = await getCDSFiles();
-
-    setConnectors(
-      _.orderBy(
-        responses.filter((res) => res && res.data).map((res) => res.data),
-        [(response) => response.name.toLowerCase()],
-        ["asc"]
-      )
-    );
-  };
+  // user's workflows list
+  const [workflows, setWorkflows] = useState<Workflow[]>([]);
 
   const getAddress = async () => {
     const addresses = await window.ethereum.request({
@@ -86,10 +110,57 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     setWallet(addresses[0]);
   };
 
+  const getWorkflowsList = async () => {
+    const res = await listWorkflows(user);
+
+    if (res && res.data && res.data.error) {
+      console.log("or_listWorkflows error", res.data.error);
+    }
+    if (res && res.data && res.data.result) {
+      setWorkflows(
+        res.data.result
+          .map((result: any) => ({
+            ...result.workflow,
+            key: result.key,
+          }))
+          .filter((workflow: Workflow) => workflow)
+      );
+    }
+  };
+
+  // Save current workflow
+  const saveWorkflow = async () => {
+    if (workflow) {
+      const readyWorkflow = {
+        ...workflow,
+        state: "on",
+        signature: JSON.stringify(workflow),
+      };
+      const res = await createWorkflow(readyWorkflow);
+      if (res && res.data && res.data.error) {
+      }
+      if (res && res.data && res.data.result) {
+        getWorkflowsList();
+      }
+    }
+  };
+
+  // Edit existing workflow
+  const editWorkflow = async (workflow: Workflow) => {
+    const res = await updateWorkflow(workflow, user);
+
+    if (res && res.data && res.data.error) {
+      console.error("editWorkflow error", res.data.error);
+    }
+    if (res && res.data && res.data.result) {
+      getWorkflowsList();
+    }
+  };
+
   useEffect(() => {
     if (user) {
-      getConnectors();
       getAddress();
+      getWorkflowsList();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -121,14 +192,35 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   }, [connection, connect]);
 
+  useEffect(() => {
+    if (workflows && workflows.length > 0) {
+      const notificationWorkflow = workflows.find(
+        (wf) =>
+          wf &&
+          wf.trigger &&
+          wf.trigger.operation === "newTransaction" &&
+          wf.trigger.connector === "evmWallet" &&
+          wf.actions &&
+          wf.actions[0] &&
+          wf.actions[0].connector === "firebaseCloudMessaging" &&
+          wf.actions[0].operation === "sendPushNotification"
+      );
+      if (notificationWorkflow) {
+        setWorkflow(notificationWorkflow);
+      }
+    }
+  }, [workflows]);
+
   return (
     <AppContext.Provider
       value={{
         user,
         setUser,
         disconnect,
-        connectors,
         wallet,
+        workflow,
+        saveWorkflow,
+        editWorkflow,
       }}
     >
       {children}

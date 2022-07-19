@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import _ from "lodash";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import ConnectButton from "../shared/ConnectButton";
 import { SCREEN } from "../../constants";
@@ -22,7 +23,6 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  margin-top: 67px;
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
@@ -32,24 +32,9 @@ const Wrapper = styled.div`
   min-height: calc(100vh - 150px);
   @media (min-width: ${SCREEN.TABLET}) {
     padding: 40px 0;
-    margin-top: 67px;
     height: calc(100vh - 280px);
     max-height: calc(100vh - 350px);
     min-height: auto;
-  }
-`;
-
-const Title = styled.p`
-  font-weight: 700;
-  font-size: 25px;
-  line-height: 120%;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.87);
-  padding: 0 90px;
-  margin: 0 0 15px;
-  @media (min-width: ${SCREEN.TABLET}) {
-    padding: 0;
-    margin: 0 auto 15px;
   }
 `;
 
@@ -75,7 +60,7 @@ const Desc = styled.p`
   padding: 0;
   margin: 0 0 5px;
   @media (min-width: ${SCREEN.TABLET}) {
-    max-width: 576px;
+    max-width: 600px;
     margin: 0 auto 5px;
   }
 `;
@@ -91,16 +76,6 @@ const Disclaimer = styled.div`
   margin: 0 auto;
 `;
 
-const WalletWrapper = styled.div`
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 150%;
-  text-align: center;
-  color: #0b0d17;
-  padding: 0;
-  margin: 20px 0 20px;
-`;
-
 const SwitchInputWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -108,21 +83,38 @@ const SwitchInputWrapper = styled.div`
   justify-content: center;
   flex-wrap: nowrap;
   gap: 20px;
+  margin: 20px 0;
 `;
 
 type Props = {};
 
 const WelcomePage = (props: Props) => {
-  const { user, wallet } = useAppContext();
-  const [notifications, setNotifications] = useState("");
+  const { user, wallet, workflow, editWorkflow, saveWorkflow } =
+    useAppContext();
+  const [token, setToken] = useState("");
 
   const handleNotificationsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    let enrichedWorkflow = { ...workflow };
+    const data: any = {
+      creator: user || "",
+      "trigger.input.to": wallet || "",
+      "actions[0].input.token": token || "",
+    };
+    Object.keys(data).forEach((path) => {
+      _.set(enrichedWorkflow, path, data[path]);
+    });
     if (e.target.checked) {
-      requestPermission();
+      if (enrichedWorkflow.key) {
+        editWorkflow({ ...enrichedWorkflow, state: "on" });
+      } else {
+        saveWorkflow();
+      }
     } else {
-      setNotifications("");
+      if (enrichedWorkflow.key) {
+        editWorkflow({ ...enrichedWorkflow, state: "off" });
+      }
     }
   };
 
@@ -135,18 +127,20 @@ const WelcomePage = (props: Props) => {
         })
           .then((currentToken) => {
             if (currentToken) {
-              setNotifications(currentToken);
+              setToken(currentToken);
             } else {
               console.log(
                 "No registration token available. Request permission to generate one."
               );
-              setNotifications("");
+              setToken("");
             }
           })
           .catch((err) => {
             console.log("An error occurred while retrieving token. ", err);
-            setNotifications("");
+            setToken("");
           });
+      } else {
+        setToken("");
       }
     });
   };
@@ -155,23 +149,20 @@ const WelcomePage = (props: Props) => {
     if (user) {
       requestPermission();
     } else {
-      setNotifications("");
+      setToken("");
     }
   }, [user]);
-
-  console.log("notificationsToken", notifications);
 
   return (
     <Container>
       <Wrapper>
-        <Title>Welcome to Grindery Ping</Title>
-        <Img src="/images/welcome.svg" alt="Welcome" />
-        <Desc>
-          Grindery Ping is the easiest way to receive notifications on
-          blockchain transactions.
-        </Desc>
         {!user ? (
           <>
+            <Img src="/images/welcome.svg" alt="Welcome" />
+            <Desc>
+              Grindery Ping is the easiest way to receive notifications on
+              blockchain transactions.
+            </Desc>
             <ConnectButton />
             <Disclaimer>
               Grindery Ping uses{" "}
@@ -189,16 +180,33 @@ const WelcomePage = (props: Props) => {
           <>
             {wallet && (
               <>
-                <WalletWrapper>
-                  Wallet address: <strong>{wallet}</strong>
-                </WalletWrapper>
-                <SwitchInputWrapper>
-                  <span>Enable push notifications</span>
-                  <SwitchInput
-                    value={!!notifications}
-                    onChange={handleNotificationsChange}
-                  />
-                </SwitchInputWrapper>
+                {!token ? (
+                  <>
+                    <Img src="/images/welcome.svg" alt="Welcome" />
+                    <Desc>
+                      Please grant permissions to the website to receive
+                      notifications when a deposit to your wallet address is
+                      made.
+                    </Desc>
+                  </>
+                ) : (
+                  <>
+                    <Img src="/images/welcome.svg" alt="Welcome" />
+                    <Desc>
+                      You will receive browser notifications when a deposit to
+                      your wallet address is made.
+                    </Desc>
+                    <SwitchInputWrapper>
+                      <span>
+                        Wallet <strong>{wallet}</strong>
+                      </span>
+                      <SwitchInput
+                        value={workflow.state === "on"}
+                        onChange={handleNotificationsChange}
+                      />
+                    </SwitchInputWrapper>
+                  </>
+                )}
               </>
             )}
           </>
