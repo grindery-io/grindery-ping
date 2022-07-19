@@ -74,12 +74,9 @@ async function createAuthProvider() {
 // Context props
 type ContextProps = {
   user: any;
-  setUser?: (a: any) => void;
   disconnect: any;
   wallet: string;
   workflow: Workflow;
-  saveWorkflow: () => void;
-  editWorkflow: (a: Workflow) => void;
   handleNotificationsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   token: string;
   isBrowserSupported: null | boolean;
@@ -93,12 +90,9 @@ type AppContextProps = {
 // Init context
 export const AppContext = createContext<ContextProps>({
   user: "",
-  setUser: defaultFunc,
   disconnect: defaultFunc,
   wallet: "",
   workflow: blankWorkflow,
-  saveWorkflow: defaultFunc,
-  editWorkflow: defaultFunc,
   handleNotificationsChange: defaultFunc,
   token: "",
   isBrowserSupported: null,
@@ -145,7 +139,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       if (enrichedWorkflow.key) {
         editWorkflow({ ...enrichedWorkflow, state: "on" });
       } else {
-        saveWorkflow();
+        saveWorkflow({ ...enrichedWorkflow, state: "on" });
       }
     } else {
       if (enrichedWorkflow.key) {
@@ -212,15 +206,16 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   };
 
   // Save current workflow
-  const saveWorkflow = async () => {
-    if (workflow) {
+  const saveWorkflow = async (wf: Workflow) => {
+    if (wf) {
       const readyWorkflow = {
-        ...workflow,
+        ...wf,
         state: "on",
-        signature: JSON.stringify(workflow),
+        signature: JSON.stringify(wf),
       };
       const res = await createWorkflow(readyWorkflow);
       if (res && res.data && res.data.error) {
+        console.error("createWorkflow error", res.data.error);
       }
       if (res && res.data && res.data.result) {
         getWorkflowsList();
@@ -233,7 +228,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     const res = await updateWorkflow(workflow, user);
 
     if (res && res.data && res.data.error) {
-      console.error("editWorkflow error", res.data.error);
+      console.error("updateWorkflow error", res.data.error);
     }
     if (res && res.data && res.data.result) {
       getWorkflowsList();
@@ -282,13 +277,16 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Filter EVM to FCM workflow from the list of user's workflows
   useEffect(() => {
-    if (workflows && workflows.length > 0) {
+    if (workflows && workflows.length > 0 && wallet) {
       const notificationWorkflow = workflows.find(
         (wf) =>
           wf &&
           wf.trigger &&
           wf.trigger.operation === "newTransaction" &&
           wf.trigger.connector === "evmWallet" &&
+          wf.trigger.input &&
+          wf.trigger.input.to &&
+          wf.trigger.input.to === wallet &&
           wf.actions &&
           wf.actions[0] &&
           wf.actions[0].connector === "firebaseCloudMessaging" &&
@@ -298,7 +296,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         setWorkflow(notificationWorkflow);
       }
     }
-  }, [workflows]);
+  }, [workflows, wallet]);
 
   // Check if browser supports push notifications
   useEffect(() => {
@@ -320,12 +318,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     <AppContext.Provider
       value={{
         user,
-        setUser,
         disconnect,
         wallet,
         workflow,
-        saveWorkflow,
-        editWorkflow,
         handleNotificationsChange,
         token,
         isBrowserSupported,
