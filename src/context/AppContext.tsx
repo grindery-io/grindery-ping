@@ -1,5 +1,6 @@
 import React, { useState, createContext, useEffect } from "react";
 import { EthereumAuthProvider, useViewerConnection } from "@self.id/framework";
+import _ from "lodash";
 import { initializeApp } from "firebase/app";
 import { defaultFunc, getSelfIdCookie } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
@@ -8,7 +9,9 @@ import {
   listWorkflows,
   updateWorkflow,
 } from "../helpers/engine";
+import { getMessaging, getToken, isSupported } from "firebase/messaging";
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA36V03w7qZaOrfBtaxqk82iblwg88IsTQ",
   authDomain: "grindery-ping.firebaseapp.com",
@@ -19,8 +22,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 
+// // Initialize Firebase Cloud Messaging
+const messaging = getMessaging(firebaseApp);
+
+// New workflow object
 const blankWorkflow: Workflow = {
   title: "New workflow",
   trigger: {
@@ -48,12 +55,14 @@ const blankWorkflow: Workflow = {
   state: "off",
 };
 
+// Declare `ethereum` property for `window` object
 declare global {
   interface Window {
     ethereum: any;
   }
 }
 
+// Create auth provider for SelfID authentication
 async function createAuthProvider() {
   // The following assumes there is an injected `window.ethereum` provider
   const addresses = await window.ethereum.request({
@@ -62,6 +71,7 @@ async function createAuthProvider() {
   return new EthereumAuthProvider(window.ethereum, addresses[0]);
 }
 
+// Context props
 type ContextProps = {
   user: any;
   setUser?: (a: any) => void;
@@ -70,12 +80,17 @@ type ContextProps = {
   workflow: Workflow;
   saveWorkflow: () => void;
   editWorkflow: (a: Workflow) => void;
+  handleNotificationsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  token: string;
+  isBrowserSupported: null | boolean;
 };
 
+// Context provider props
 type AppContextProps = {
   children: React.ReactNode;
 };
 
+// Init context
 export const AppContext = createContext<ContextProps>({
   user: "",
   setUser: defaultFunc,
@@ -84,6 +99,9 @@ export const AppContext = createContext<ContextProps>({
   workflow: blankWorkflow,
   saveWorkflow: defaultFunc,
   editWorkflow: defaultFunc,
+  handleNotificationsChange: defaultFunc,
+  token: "",
+  isBrowserSupported: null,
 });
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
@@ -96,12 +114,76 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   // User wallet address
   const [wallet, setWallet] = useState("");
 
-  // workflow state
+  // Current workflow state
   const [workflow, setWorkflow] = useState<Workflow>(blankWorkflow);
 
   // user's workflows list
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
 
+  // user's notification token
+  const [token, setToken] = useState("");
+
+  // Is browser supports push notifications
+  const [isBrowserSupported, setIsBrowserSupported] = useState<null | boolean>(
+    null
+  );
+
+  // handle notification toggle change
+  const handleNotificationsChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let enrichedWorkflow = { ...workflow };
+    const data: any = {
+      creator: user || "",
+      "trigger.input.to": wallet || "",
+      "actions[0].input.tokens": token ? [token] : [],
+    };
+    Object.keys(data).forEach((path) => {
+      _.set(enrichedWorkflow, path, data[path]);
+    });
+    if (e.target.checked) {
+      if (enrichedWorkflow.key) {
+        editWorkflow({ ...enrichedWorkflow, state: "on" });
+      } else {
+        saveWorkflow();
+      }
+    } else {
+      if (enrichedWorkflow.key) {
+        editWorkflow({ ...enrichedWorkflow, state: "off" });
+      }
+    }
+  };
+
+  // Request permissions to receive notifications
+  const requestPermission = () => {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        getToken(messaging, {
+          vapidKey:
+            "BAaPC5Kx24prWkEWnIEFOKvlseb2_DFVc6wzqwAQrHw_lJ96BE3r9dvX6I1LOuzW1HCAiIMftP35FLZW1FcXpUI",
+        })
+          .then((currentToken) => {
+            if (currentToken) {
+              setToken(currentToken);
+            } else {
+              console.error(
+                "No registration token available. Request permission to generate one."
+              );
+              setToken("");
+            }
+          })
+          .catch((err) => {
+            console.error("An error occurred while retrieving token. ", err);
+            setToken("");
+            setIsBrowserSupported(false);
+          });
+      } else {
+        setToken("");
+      }
+    });
+  };
+
+  // Get user's wallet address
   const getAddress = async () => {
     const addresses = await window.ethereum.request({
       method: "eth_requestAccounts",
@@ -110,11 +192,12 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     setWallet(addresses[0]);
   };
 
+  // Get user's workflows
   const getWorkflowsList = async () => {
     const res = await listWorkflows(user);
 
     if (res && res.data && res.data.error) {
-      console.log("or_listWorkflows error", res.data.error);
+      console.error("or_listWorkflows error", res.data.error);
     }
     if (res && res.data && res.data.result) {
       setWorkflows(
@@ -157,10 +240,14 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   };
 
+  // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
     if (user) {
       getAddress();
       getWorkflowsList();
+      requestPermission();
+    } else {
+      setToken("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -180,6 +267,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connection]);
 
+  // Automatically sign in user if SelfID cookie exists
   useEffect(() => {
     const cookie = getSelfIdCookie();
     if (
@@ -192,6 +280,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   }, [connection, connect]);
 
+  // Filter EVM to FCM workflow from the list of user's workflows
   useEffect(() => {
     if (workflows && workflows.length > 0) {
       const notificationWorkflow = workflows.find(
@@ -211,6 +300,22 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   }, [workflows]);
 
+  // Check if browser supports push notifications
+  useEffect(() => {
+    isSupported()
+      .then((res) => {
+        if (res) {
+          setIsBrowserSupported(true);
+        } else {
+          setIsBrowserSupported(false);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsBrowserSupported(false);
+      });
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -221,6 +326,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         workflow,
         saveWorkflow,
         editWorkflow,
+        handleNotificationsChange,
+        token,
+        isBrowserSupported,
       }}
     >
       {children}

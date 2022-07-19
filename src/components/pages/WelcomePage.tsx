@@ -1,19 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import _ from "lodash";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import ConnectButton from "../shared/ConnectButton";
-import { SCREEN } from "../../constants";
+import { ICONS, IMAGES, SCREEN } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
 import { SwitchInput } from "grindery-ui";
-import { firebaseApp } from "../../context/AppContext";
-
-const messaging = getMessaging(firebaseApp);
-
-onMessage(messaging, (payload) => {
-  console.log("Message received. ", payload);
-  // ...
-});
 
 const Container = styled.div`
   @media (min-width: ${SCREEN.TABLET}) {
@@ -80,85 +70,41 @@ const SwitchInputWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 20px;
-  margin: 20px 0;
+  gap: 10px;
+  margin: 15px auto 20px;
+  width: 628px;
+  max-width: calc(100vw - 80px);
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 20px;
+
+  & span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 type Props = {};
 
 const WelcomePage = (props: Props) => {
-  const { user, wallet, workflow, editWorkflow, saveWorkflow } =
-    useAppContext();
-  const [token, setToken] = useState("");
-
-  const handleNotificationsChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    let enrichedWorkflow = { ...workflow };
-    const data: any = {
-      creator: user || "",
-      "trigger.input.to": wallet || "",
-      "actions[0].input.token": token || "",
-    };
-    Object.keys(data).forEach((path) => {
-      _.set(enrichedWorkflow, path, data[path]);
-    });
-    if (e.target.checked) {
-      if (enrichedWorkflow.key) {
-        editWorkflow({ ...enrichedWorkflow, state: "on" });
-      } else {
-        saveWorkflow();
-      }
-    } else {
-      if (enrichedWorkflow.key) {
-        editWorkflow({ ...enrichedWorkflow, state: "off" });
-      }
-    }
-  };
-
-  const requestPermission = () => {
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
-        getToken(messaging, {
-          vapidKey:
-            "BAaPC5Kx24prWkEWnIEFOKvlseb2_DFVc6wzqwAQrHw_lJ96BE3r9dvX6I1LOuzW1HCAiIMftP35FLZW1FcXpUI",
-        })
-          .then((currentToken) => {
-            if (currentToken) {
-              setToken(currentToken);
-            } else {
-              console.log(
-                "No registration token available. Request permission to generate one."
-              );
-              setToken("");
-            }
-          })
-          .catch((err) => {
-            console.log("An error occurred while retrieving token. ", err);
-            setToken("");
-          });
-      } else {
-        setToken("");
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (user) {
-      requestPermission();
-    } else {
-      setToken("");
-    }
-  }, [user]);
+  const {
+    user,
+    wallet,
+    workflow,
+    handleNotificationsChange,
+    token,
+    isBrowserSupported,
+  } = useAppContext();
 
   return (
     <Container>
       <Wrapper>
         {!user ? (
           <>
-            <Img src="/images/welcome.svg" alt="Welcome" />
+            <Img src={IMAGES.WELCOME} alt="Welcome image" />
             <Desc>
               Grindery Ping is the easiest way to receive notifications on
               blockchain transactions.
@@ -182,28 +128,37 @@ const WelcomePage = (props: Props) => {
               <>
                 {!token ? (
                   <>
-                    <Img src="/images/welcome.svg" alt="Welcome" />
-                    <Desc>
-                      Please grant permissions to the website to receive
-                      notifications when a deposit to your wallet address is
-                      made.
-                    </Desc>
+                    {isBrowserSupported !== null && !isBrowserSupported ? (
+                      <>
+                        <Img
+                          src={IMAGES.NOT_SUPOORTED}
+                          alt="Browser not supported image"
+                        />
+                        <Desc>Your browser is not supported</Desc>
+                      </>
+                    ) : (
+                      <>
+                        <Img src={IMAGES.ENABLE_NOTIFICATIONS} alt="Welcome" />
+                        <Desc>Please enable notifications</Desc>
+                      </>
+                    )}
                   </>
                 ) : (
                   <>
-                    <Img src="/images/welcome.svg" alt="Welcome" />
+                    <Img src={IMAGES.WELCOME} alt="Welcome image" />
                     <Desc>
                       You will receive browser notifications when a deposit to
                       your wallet address is made.
                     </Desc>
                     <SwitchInputWrapper>
-                      <span>
-                        Wallet <strong>{wallet}</strong>
-                      </span>
-                      <SwitchInput
-                        value={workflow.state === "on"}
-                        onChange={handleNotificationsChange}
-                      />
+                      <img src={ICONS.WALLET} alt="wallet icon" />
+                      <span>{wallet}</span>
+                      <div style={{ marginLeft: "auto" }}>
+                        <SwitchInput
+                          value={workflow.state === "on"}
+                          onChange={handleNotificationsChange}
+                        />
+                      </div>
                     </SwitchInputWrapper>
                   </>
                 )}

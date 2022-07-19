@@ -13,6 +13,7 @@ export const ICONS: { [key: string]: string } = {
   DISCONNECT: "/images/icons/disconnect.svg",
   CHECKBOX_CHECKED: "/images/icons/checkbox-checked.svg",
   CHECKBOX_EMPTY: "/images/icons/checkbox-empty.svg",
+  WALLET: "/images/icons/wallet.svg",
 };
 
 export const WEB2_CONNECTORS_PATH =
@@ -20,3 +21,9 @@ export const WEB2_CONNECTORS_PATH =
 
 export const WEB3_CONNECTORS_PATH =
   "https://api.github.com/repos/grindery-io/grindery-nexus-schema-v2/contents/cds/web3";
+
+export const IMAGES = {
+  WELCOME: "/images/grindery-ping-welcome.svg",
+  NOT_SUPOORTED: "/images/grindery-ping-not-supported.svg",
+  ENABLE_NOTIFICATIONS: "/images/grindery-ping-enable-notifications.svg",
+};
