@@ -294,8 +294,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           wf.trigger.input.to === wallet &&
           wf.actions &&
           wf.actions[0] &&
-          wf.actions[0].connector === "firebaseCloudMessaging" &&
-          wf.actions[0].operation === "sendPushNotification"
+          (wf.actions[0].connector === "firebaseCloudMessaging" ||
+            wf.actions[0].connector === "firebaseCloudMessagingConnector") &&
+          (wf.actions[0].operation === "sendPushNotification" ||
+            wf.actions[0].operation === "fcmPushNotification")
       );
       if (notificationWorkflow) {
         setWorkflow(notificationWorkflow);
