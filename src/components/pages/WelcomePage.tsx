@@ -140,6 +140,12 @@ const WelcomePage = (props: Props) => {
                       <>
                         <Img src={IMAGES.ENABLE_NOTIFICATIONS} alt="Welcome" />
                         <Desc>Please enable notifications</Desc>
+                        <label style={{ cursor: "pointer" }}>
+                          <SwitchInput
+                            value={workflow.state === "on"}
+                            onChange={handleNotificationsChange}
+                          />
+                        </label>
                       </>
                     )}
                   </>

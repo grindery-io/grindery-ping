@@ -1,20 +1,8 @@
 import React from "react";
-import { EthereumAuthProvider, useViewerConnection } from "@self.id/framework";
+import { useViewerConnection } from "@self.id/framework";
 import { ICONS } from "../../constants";
 import Button from "./Button";
-
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-
-async function createAuthProvider() {
-  const addresses = await window.ethereum.request({
-    method: "eth_requestAccounts",
-  });
-  return new EthereumAuthProvider(window.ethereum, addresses[0]);
-}
+import { createAuthProvider } from "../../helpers/ceramic";
 
 type Props = {};
 

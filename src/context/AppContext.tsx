@@ -1,7 +1,6 @@
-import React, { useState, createContext, useEffect } from "react";
-import { EthereumAuthProvider, useViewerConnection } from "@self.id/framework";
+import React, { useState, createContext, useEffect, useCallback } from "react";
+import { useViewerConnection } from "@self.id/framework";
 import _ from "lodash";
-import { initializeApp } from "firebase/app";
 import { defaultFunc, getSelfIdCookie } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
 import {
@@ -9,23 +8,8 @@ import {
   listWorkflows,
   updateWorkflow,
 } from "../helpers/engine";
-import { getMessaging, getToken, isSupported } from "firebase/messaging";
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyA36V03w7qZaOrfBtaxqk82iblwg88IsTQ",
-  authDomain: "grindery-ping.firebaseapp.com",
-  projectId: "grindery-ping",
-  storageBucket: "grindery-ping.appspot.com",
-  messagingSenderId: "1009789264721",
-  appId: "1:1009789264721:web:468fe5b2c6dcc39e0ea970",
-};
-
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-
-// // Initialize Firebase Cloud Messaging
-const messaging = getMessaging(firebaseApp);
+import { checkBrowser, requestPermission } from "../helpers/firebase";
+import { createAuthProvider, getAddress } from "../helpers/ceramic";
 
 // New workflow object
 const blankWorkflow: Workflow = {
@@ -54,22 +38,6 @@ const blankWorkflow: Workflow = {
   creator: "",
   state: "off",
 };
-
-// Declare `ethereum` property for `window` object
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-
-// Create auth provider for SelfID authentication
-async function createAuthProvider() {
-  // The following assumes there is an injected `window.ethereum` provider
-  const addresses = await window.ethereum.request({
-    method: "eth_requestAccounts",
-  });
-  return new EthereumAuthProvider(window.ethereum, addresses[0]);
-}
 
 // Context props
 type ContextProps = {
@@ -142,58 +110,20 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     });
     if (e.target.checked) {
       if (enrichedWorkflow.key) {
-        editWorkflow({ ...enrichedWorkflow, state: "on" });
+        editWorkflow({ ...enrichedWorkflow, state: "on" }, user);
       } else {
-        saveWorkflow({ ...enrichedWorkflow, state: "on" });
+        saveWorkflow({ ...enrichedWorkflow, state: "on" }, user);
       }
     } else {
       if (enrichedWorkflow.key) {
-        editWorkflow({ ...enrichedWorkflow, state: "off" });
+        editWorkflow({ ...enrichedWorkflow, state: "off" }, user);
       }
     }
   };
 
-  // Request permissions to receive notifications
-  const requestPermission = () => {
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
-        getToken(messaging, {
-          vapidKey:
-            "BAaPC5Kx24prWkEWnIEFOKvlseb2_DFVc6wzqwAQrHw_lJ96BE3r9dvX6I1LOuzW1HCAiIMftP35FLZW1FcXpUI",
-        })
-          .then((currentToken) => {
-            if (currentToken) {
-              setToken(currentToken);
-            } else {
-              console.error(
-                "No registration token available. Request permission to generate one."
-              );
-              setToken("");
-            }
-          })
-          .catch((err) => {
-            console.error("An error occurred while retrieving token. ", err);
-            setToken("");
-            setIsBrowserSupported(false);
-          });
-      } else {
-        setToken("");
-      }
-    });
-  };
-
-  // Get user's wallet address
-  const getAddress = async () => {
-    const addresses = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-
-    setWallet(addresses[0]);
-  };
-
   // Get user's workflows
-  const getWorkflowsList = async () => {
-    const res = await listWorkflows(user);
+  const getWorkflowsList = useCallback(async (userId: string) => {
+    const res = await listWorkflows(userId);
 
     if (res && res.data && res.data.error) {
       console.error("or_listWorkflows error", res.data.error);
@@ -208,10 +138,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           .filter((workflow: Workflow) => workflow)
       );
     }
-  };
+  }, []);
 
   // Save current workflow
-  const saveWorkflow = async (wf: Workflow) => {
+  const saveWorkflow = async (wf: Workflow, userId: string) => {
     if (wf) {
       const readyWorkflow = {
         ...wf,
@@ -223,49 +153,56 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         console.error("createWorkflow error", res.data.error);
       }
       if (res && res.data && res.data.result) {
-        getWorkflowsList();
+        getWorkflowsList(userId);
       }
     }
   };
 
   // Edit existing workflow
-  const editWorkflow = async (workflow: Workflow) => {
-    const res = await updateWorkflow(workflow, user);
+  const editWorkflow = async (workflow: Workflow, userId: string) => {
+    const res = await updateWorkflow(workflow, userId);
 
     if (res && res.data && res.data.error) {
       console.error("updateWorkflow error", res.data.error);
     }
     if (res && res.data && res.data.result) {
-      getWorkflowsList();
+      getWorkflowsList(userId);
     }
   };
 
-  // Request user address, workflows list and notification permissions when user id is set
-  useEffect(() => {
-    if (user) {
-      getAddress();
-      getWorkflowsList();
-      requestPermission();
-    } else {
-      setToken("");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  // set user id on success authentication
-  useEffect(() => {
+  const connectUser = useCallback((connection: any, userId: string | null) => {
     if (connection.status === "connected") {
-      if (!user) {
-        setUser(connection.selfID.id);
-      } else {
+      if (!userId) {
         setUser(connection.selfID.id);
       }
     } else {
       setUser(null);
       setWallet("");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connection]);
+  }, []);
+
+  const initUser = useCallback(
+    (userId: string | null) => {
+      if (userId) {
+        getAddress(setWallet);
+        getWorkflowsList(userId);
+        requestPermission(setToken, setIsBrowserSupported);
+      } else {
+        setToken("");
+      }
+    },
+    [getWorkflowsList]
+  );
+
+  // Request user address, workflows list and notification permissions when user id is set
+  useEffect(() => {
+    initUser(user);
+  }, [user, initUser]);
+
+  // set user id on success authentication
+  useEffect(() => {
+    connectUser(connection, user);
+  }, [connection, user, connectUser]);
 
   // Automatically sign in user if SelfID cookie exists
   useEffect(() => {
@@ -307,19 +244,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Check if browser supports push notifications
   useEffect(() => {
-    isSupported()
-      .then((res) => {
-        if (res) {
-          setIsBrowserSupported(true);
-        } else {
-          setIsBrowserSupported(false);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsBrowserSupported(false);
-      });
+    checkBrowser(setIsBrowserSupported);
   }, []);
+
+  console.log("user", user);
 
   return (
     <AppContext.Provider
