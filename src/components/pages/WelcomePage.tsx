@@ -154,10 +154,12 @@ const WelcomePage = (props: Props) => {
                       <img src={ICONS.WALLET} alt="wallet icon" />
                       <span>{wallet}</span>
                       <div style={{ marginLeft: "auto" }}>
-                        <SwitchInput
-                          value={workflow.state === "on"}
-                          onChange={handleNotificationsChange}
-                        />
+                        <label style={{ cursor: "pointer" }}>
+                          <SwitchInput
+                            value={workflow.state === "on"}
+                            onChange={handleNotificationsChange}
+                          />
+                        </label>
                       </div>
                     </SwitchInputWrapper>
                   </>
