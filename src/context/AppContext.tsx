@@ -42,12 +42,12 @@ const blankWorkflow: Workflow = {
   actions: [
     {
       type: "action",
-      connector: "firebaseCloudMessaging",
-      operation: "sendPushNotification",
+      connector: "firebaseCloudMessagingConnector",
+      operation: "fcmPushNotification",
       input: {
-        token: "",
-        title: "New deposit",
-        body: "New deposit to the wallet {{trigger.to}} has been made",
+        tokens: [""],
+        title: "Payment received!",
+        body: "New payment received by the wallet {{trigger.to}}",
       },
     },
   ],
@@ -131,6 +131,11 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       creator: user || "",
       "trigger.input.to": wallet || "",
       "actions[0].input.tokens": token ? [token] : [],
+      "actions[0].input.title": "Payment received!",
+      "actions[0].input.body":
+        "New payment received by the wallet {{trigger.to}}",
+      "actions[0].connector": "firebaseCloudMessagingConnector",
+      "actions[0].operation": "fcmPushNotification",
     };
     Object.keys(data).forEach((path) => {
       _.set(enrichedWorkflow, path, data[path]);
