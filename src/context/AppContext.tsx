@@ -333,6 +333,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     checkBrowser(setIsBrowserSupported);
   }, []);
 
+  console.log("token", token);
+
   return (
     <AppContext.Provider
       value={{
