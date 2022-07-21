@@ -13,7 +13,7 @@ import { createAuthProvider, getAddress } from "../helpers/ceramic";
 
 // New workflow object
 const blankWorkflow: Workflow = {
-  title: "New workflow",
+  title: "Grindery Ping notifications",
   trigger: {
     type: "trigger",
     connector: "evmWallet",
@@ -96,6 +96,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   ) => {
     let enrichedWorkflow = { ...workflow };
     const data: any = {
+      title: "Grindery Ping notifications",
       creator: user || "",
       "trigger.input.to": wallet || "",
       "actions[0].input.tokens": token ? [token] : [],
