@@ -93,7 +93,8 @@ const WelcomePage = (props: Props) => {
   const {
     user,
     wallet,
-    workflow,
+    walletWorkflowState,
+    tokenWorkflowState,
     handleNotificationsChange,
     token,
     isBrowserSupported,
@@ -140,12 +141,6 @@ const WelcomePage = (props: Props) => {
                       <>
                         <Img src={IMAGES.ENABLE_NOTIFICATIONS} alt="Welcome" />
                         <Desc>Please enable notifications</Desc>
-                        <label style={{ cursor: "pointer" }}>
-                          <SwitchInput
-                            value={workflow.state === "on"}
-                            onChange={handleNotificationsChange}
-                          />
-                        </label>
                       </>
                     )}
                   </>
@@ -162,7 +157,10 @@ const WelcomePage = (props: Props) => {
                       <div style={{ marginLeft: "auto" }}>
                         <label style={{ cursor: "pointer" }}>
                           <SwitchInput
-                            value={workflow.state === "on"}
+                            value={
+                              walletWorkflowState.state === "on" &&
+                              tokenWorkflowState.state === "on"
+                            }
                             onChange={handleNotificationsChange}
                           />
                         </label>
