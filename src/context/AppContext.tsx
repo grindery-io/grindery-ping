@@ -19,7 +19,7 @@ const walletWorkflow: Workflow = {
     connector: "evmWallet",
     operation: "newTransaction",
     input: {
-      _grinderyChain: "eip155:1",
+      _grinderyChain: "eip155:137",
       to: "",
     },
   },
@@ -47,7 +47,7 @@ const tokenWorkflow: Workflow = {
     connector: "erc20",
     operation: "TransferTrigger",
     input: {
-      _grinderyChain: "eip155:1",
+      _grinderyChain: "eip155:137",
       _grinderyContractAddress: "0x0",
       to: "",
     },
@@ -135,7 +135,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     const walletInput: any = {
       title: "Grindery Ping notifications for Wallet transaction",
       creator: user || "",
-      "trigger.input._grinderyChain": "eip155:1",
+      "trigger.input._grinderyChain": "eip155:137",
       "trigger.input.to": wallet || "",
       "actions[0].input.tokens": token ? [token] : [],
       "actions[0].input.title": "Payment received!",
@@ -153,7 +153,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     const tokenInput: any = {
       title: "Grindery Ping notifications for ERC-20 Token transfer",
       creator: user || "",
-      "trigger.input._grinderyChain": "eip155:1",
+      "trigger.input._grinderyChain": "eip155:137",
       "trigger.input.to": wallet || "",
       "actions[0].input.tokens": token ? [token] : [],
       "actions[0].input.title": "Token received!",
