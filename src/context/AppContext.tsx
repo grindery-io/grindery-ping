@@ -31,7 +31,7 @@ const walletWorkflow: Workflow = {
       input: {
         tokens: [""],
         title: "Payment received!",
-        body: "New payment received by the wallet {{trigger.to}}",
+        body: "New payment received from the address {{trigger.from}}",
       },
     },
   ],
@@ -60,7 +60,7 @@ const tokenWorkflow: Workflow = {
       input: {
         tokens: [""],
         title: "Payment received!",
-        body: "New payment received by the wallet {{trigger.to}}",
+        body: "New token transaction received from the address {{trigger.from}}",
       },
     },
   ],
@@ -140,7 +140,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       "actions[0].input.tokens": token ? [token] : [],
       "actions[0].input.title": "Payment received!",
       "actions[0].input.body":
-        "New payment received by the wallet {{trigger.to}}",
+        "New payment received from the address {{trigger.from}}",
       "actions[0].connector": "firebaseCloudMessagingConnector",
       "actions[0].operation": "fcmPushNotification",
     };
@@ -158,7 +158,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       "actions[0].input.tokens": token ? [token] : [],
       "actions[0].input.title": "Token received!",
       "actions[0].input.body":
-        "New token transaction received by the wallet {{trigger.to}}",
+        "New token transaction received from the address {{trigger.from}}",
       "actions[0].connector": "firebaseCloudMessagingConnector",
       "actions[0].operation": "fcmPushNotification",
     };
