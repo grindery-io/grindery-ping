@@ -11,6 +11,11 @@ import {
 import { checkBrowser, requestPermission } from "../helpers/firebase";
 import { createAuthProvider, getAddress } from "../helpers/ceramic";
 
+const NOTIFICATION = {
+  TITLE: "Event detected",
+  BODY: "You received a deposit from {{trigger.from}}",
+};
+
 // New wallet workflow object
 const walletWorkflow: Workflow = {
   title: "Grindery Ping notifications for Wallet transaction",
@@ -40,8 +45,8 @@ const walletWorkflow: Workflow = {
       operation: "fcmPushNotification",
       input: {
         tokens: [""],
-        title: "Payment received!",
-        body: "New payment received from the address {{trigger.from}}",
+        title: NOTIFICATION.TITLE,
+        body: NOTIFICATION.BODY,
       },
     },
   ],
@@ -79,8 +84,8 @@ const tokenWorkflow: Workflow = {
       operation: "fcmPushNotification",
       input: {
         tokens: [""],
-        title: "Payment received!",
-        body: "New token transaction received from the address {{trigger.from}}",
+        title: NOTIFICATION.TITLE,
+        body: NOTIFICATION.BODY,
       },
     },
   ],
@@ -168,9 +173,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       ],
       "trigger.input.to": wallet || "",
       "actions[0].input.tokens": token ? [token] : [],
-      "actions[0].input.title": "Payment received!",
-      "actions[0].input.body":
-        "New payment received from the address {{trigger.from}}",
+      "actions[0].input.title": NOTIFICATION.TITLE,
+      "actions[0].input.body": NOTIFICATION.BODY,
       "actions[0].connector": "firebaseCloudMessagingConnector",
       "actions[0].operation": "fcmPushNotification",
     };
@@ -196,9 +200,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       ],
       "trigger.input.to": wallet || "",
       "actions[0].input.tokens": token ? [token] : [],
-      "actions[0].input.title": "Token received!",
-      "actions[0].input.body":
-        "New token transaction received from the address {{trigger.from}}",
+      "actions[0].input.title": NOTIFICATION.TITLE,
+      "actions[0].input.body": NOTIFICATION.BODY,
       "actions[0].connector": "firebaseCloudMessagingConnector",
       "actions[0].operation": "fcmPushNotification",
     };
