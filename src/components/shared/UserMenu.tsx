@@ -90,9 +90,9 @@ const UserDropdownContent = styled.div`
 type Props = {};
 
 const UserMenu = (props: Props) => {
-  const { user, disconnect } = useAppContext();
+  const { wallet, disconnect } = useAppContext();
   const [menuOpened, setMenuOpened] = useState(false);
-  return user ? (
+  return wallet ? (
     <UserContainer>
       <Foco
         onClickOutside={() => {
@@ -109,7 +109,9 @@ const UserMenu = (props: Props) => {
         >
           <UserStatus />
           <UserId>
-            {user.substring(0, 5) + "..." + user.substring(user.length - 4)}
+            {wallet.substring(0, 5) +
+              "..." +
+              wallet.substring(wallet.length - 4)}
           </UserId>
         </UserWrapper>
 

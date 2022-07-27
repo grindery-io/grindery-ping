@@ -1,9 +1,8 @@
 {
   "name": "grindery-ping",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "@self.id/framework": "^0.3.2",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
@@ -15,7 +14,6 @@
     "buffer": "^6.0.3",
     "firebase": "^9.9.0",
     "grindery-ui": "^0.4.5",
-    "key-did-provider-ed25519": "^2.0.1",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -23,6 +21,7 @@
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.5",
     "typescript": "^4.7.4",
+    "use-grindery-nexus": "https://github.com/grindery-io/use-grindery-nexus#web3modal",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

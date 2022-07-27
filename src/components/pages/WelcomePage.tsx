@@ -4,6 +4,7 @@ import ConnectButton from "../shared/ConnectButton";
 import { ICONS, IMAGES, SCREEN } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
 import { SwitchInput } from "grindery-ui";
+import UserMenu from "../shared/UserMenu";
 
 const Container = styled.div`
   @media (min-width: ${SCREEN.TABLET}) {
@@ -55,17 +56,6 @@ const Desc = styled.p`
   }
 `;
 
-const Disclaimer = styled.div`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 150%;
-  text-align: center;
-  color: #0b0d17;
-  opacity: 0.5;
-  max-width: 500px;
-  margin: 0 auto;
-`;
-
 const SwitchInputWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -102,6 +92,11 @@ const WelcomePage = (props: Props) => {
 
   return (
     <Container>
+      {user && (
+        <div style={{ position: "absolute", right: "20px", top: "20px" }}>
+          <UserMenu />
+        </div>
+      )}
       <Wrapper>
         {!user ? (
           <>
@@ -111,17 +106,6 @@ const WelcomePage = (props: Props) => {
               blockchain transactions.
             </Desc>
             <ConnectButton />
-            <Disclaimer>
-              Grindery Ping uses{" "}
-              <a
-                href="https://blog.ceramic.network/what-is-3id-connect/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Ceramic 3ID
-              </a>{" "}
-              to authenticate users.
-            </Disclaimer>
           </>
         ) : (
           <>

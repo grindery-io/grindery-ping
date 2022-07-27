@@ -10,6 +10,7 @@ export const WORKFLOW_ENGINE_URL = "https://gnexus-orchestrator.herokuapp.com";
 export const ICONS: { [key: string]: string } = {
   GRINDERY: "/images/icons/grindery.svg",
   CERAMIC_LOGO: "/images/icons/ceramic-logo.svg",
+  METAMASK_LOGO: "/images/icons/metamask-logo.svg",
   DISCONNECT: "/images/icons/disconnect.svg",
   CHECKBOX_CHECKED: "/images/icons/checkbox-checked.svg",
   CHECKBOX_EMPTY: "/images/icons/checkbox-empty.svg",

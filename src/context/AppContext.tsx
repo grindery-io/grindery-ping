@@ -1,7 +1,7 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
-import { useViewerConnection } from "@self.id/framework";
+import { useGrinderyNexus } from "use-grindery-nexus";
 import _ from "lodash";
-import { defaultFunc, getSelfIdCookie } from "../helpers/utils";
+import { defaultFunc } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
 import {
   createWorkflow,
@@ -9,7 +9,6 @@ import {
   updateWorkflow,
 } from "../helpers/engine";
 import { checkBrowser, requestPermission } from "../helpers/firebase";
-import { createAuthProvider, getAddress } from "../helpers/ceramic";
 
 const NOTIFICATION = {
   TITLE: "Event detected",
@@ -95,9 +94,10 @@ const tokenWorkflow: Workflow = {
 
 // Context props
 type ContextProps = {
-  user: any;
+  user: string | null;
   disconnect: any;
-  wallet: string;
+  connect: any;
+  wallet: string | null;
   walletWorkflowState: Workflow;
   tokenWorkflowState: Workflow;
   handleNotificationsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -112,9 +112,10 @@ type AppContextProps = {
 
 // Init context
 export const AppContext = createContext<ContextProps>({
-  user: "",
+  user: null,
   disconnect: defaultFunc,
-  wallet: "",
+  connect: defaultFunc,
+  wallet: null,
   walletWorkflowState: walletWorkflow,
   tokenWorkflowState: tokenWorkflow,
   handleNotificationsChange: defaultFunc,
@@ -124,13 +125,10 @@ export const AppContext = createContext<ContextProps>({
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
   // Auth hook
-  const [connection, connect, disconnect] = useViewerConnection();
-
-  // User id
-  const [user, setUser] = useState<any>(null);
+  const { user, address, connect, disconnect } = useGrinderyNexus();
 
   // User wallet address
-  const [wallet, setWallet] = useState("");
+  const wallet = address;
 
   // Current wallet workflow state
   const [walletWorkflowState, setWalletWorkflowState] =
@@ -155,77 +153,79 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   const handleNotificationsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // Set wallet workflow data
-    let enrichedWalletWorkflow = { ...walletWorkflowState };
-    const walletInput: any = {
-      title: "Grindery Ping notifications for Wallet transaction",
-      creator: user || "",
-      "trigger.input._grinderyChain": [
-        "eip155:42161",
-        "eip155:43114",
-        "eip155:56",
-        "eip155:42220",
-        "eip155:1",
-        "eip155:250",
-        "eip155:137",
-        "eip155:100",
-        "eip155:1666600000",
-      ],
-      "trigger.input.to": wallet || "",
-      "actions[0].input.tokens": token ? [token] : [],
-      "actions[0].input.title": NOTIFICATION.TITLE,
-      "actions[0].input.body": NOTIFICATION.BODY,
-      "actions[0].connector": "firebaseCloudMessagingConnector",
-      "actions[0].operation": "fcmPushNotification",
-    };
-    Object.keys(walletInput).forEach((path) => {
-      _.set(enrichedWalletWorkflow, path, walletInput[path]);
-    });
+    if (user) {
+      // Set wallet workflow data
+      let enrichedWalletWorkflow = { ...walletWorkflowState };
+      const walletInput: any = {
+        title: "Grindery Ping notifications for Wallet transaction",
+        creator: user || "",
+        "trigger.input._grinderyChain": [
+          "eip155:42161",
+          "eip155:43114",
+          "eip155:56",
+          "eip155:42220",
+          "eip155:1",
+          "eip155:250",
+          "eip155:137",
+          "eip155:100",
+          "eip155:1666600000",
+        ],
+        "trigger.input.to": wallet || "",
+        "actions[0].input.tokens": token ? [token] : [],
+        "actions[0].input.title": NOTIFICATION.TITLE,
+        "actions[0].input.body": NOTIFICATION.BODY,
+        "actions[0].connector": "firebaseCloudMessagingConnector",
+        "actions[0].operation": "fcmPushNotification",
+      };
+      Object.keys(walletInput).forEach((path) => {
+        _.set(enrichedWalletWorkflow, path, walletInput[path]);
+      });
 
-    // Set token workflow data
-    let enrichedTokenWorkflow = { ...tokenWorkflowState };
-    const tokenInput: any = {
-      title: "Grindery Ping notifications for ERC-20 Token transfer",
-      creator: user || "",
-      "trigger.input._grinderyChain": [
-        "eip155:42161",
-        "eip155:43114",
-        "eip155:56",
-        "eip155:42220",
-        "eip155:1",
-        "eip155:250",
-        "eip155:137",
-        "eip155:100",
-        "eip155:1666600000",
-      ],
-      "trigger.input.to": wallet || "",
-      "actions[0].input.tokens": token ? [token] : [],
-      "actions[0].input.title": NOTIFICATION.TITLE,
-      "actions[0].input.body": NOTIFICATION.BODY,
-      "actions[0].connector": "firebaseCloudMessagingConnector",
-      "actions[0].operation": "fcmPushNotification",
-    };
-    Object.keys(tokenInput).forEach((path) => {
-      _.set(enrichedTokenWorkflow, path, tokenInput[path]);
-    });
+      // Set token workflow data
+      let enrichedTokenWorkflow = { ...tokenWorkflowState };
+      const tokenInput: any = {
+        title: "Grindery Ping notifications for ERC-20 Token transfer",
+        creator: user || "",
+        "trigger.input._grinderyChain": [
+          "eip155:42161",
+          "eip155:43114",
+          "eip155:56",
+          "eip155:42220",
+          "eip155:1",
+          "eip155:250",
+          "eip155:137",
+          "eip155:100",
+          "eip155:1666600000",
+        ],
+        "trigger.input.to": wallet || "",
+        "actions[0].input.tokens": token ? [token] : [],
+        "actions[0].input.title": NOTIFICATION.TITLE,
+        "actions[0].input.body": NOTIFICATION.BODY,
+        "actions[0].connector": "firebaseCloudMessagingConnector",
+        "actions[0].operation": "fcmPushNotification",
+      };
+      Object.keys(tokenInput).forEach((path) => {
+        _.set(enrichedTokenWorkflow, path, tokenInput[path]);
+      });
 
-    if (e.target.checked) {
-      if (enrichedWalletWorkflow.key) {
-        editWorkflow({ ...enrichedWalletWorkflow, state: "on" }, user);
+      if (e.target.checked) {
+        if (enrichedWalletWorkflow.key) {
+          editWorkflow({ ...enrichedWalletWorkflow, state: "on" }, user);
+        } else {
+          saveWorkflow({ ...enrichedWalletWorkflow, state: "on" }, user);
+        }
+        if (enrichedTokenWorkflow.key) {
+          editWorkflow({ ...enrichedTokenWorkflow, state: "on" }, user);
+        } else {
+          saveWorkflow({ ...enrichedTokenWorkflow, state: "on" }, user);
+        }
       } else {
-        saveWorkflow({ ...enrichedWalletWorkflow, state: "on" }, user);
-      }
-      if (enrichedTokenWorkflow.key) {
-        editWorkflow({ ...enrichedTokenWorkflow, state: "on" }, user);
-      } else {
-        saveWorkflow({ ...enrichedTokenWorkflow, state: "on" }, user);
-      }
-    } else {
-      if (enrichedWalletWorkflow.key) {
-        editWorkflow({ ...enrichedWalletWorkflow, state: "off" }, user);
-      }
-      if (enrichedTokenWorkflow.key) {
-        editWorkflow({ ...enrichedTokenWorkflow, state: "off" }, user);
+        if (enrichedWalletWorkflow.key) {
+          editWorkflow({ ...enrichedWalletWorkflow, state: "off" }, user);
+        }
+        if (enrichedTokenWorkflow.key) {
+          editWorkflow({ ...enrichedTokenWorkflow, state: "off" }, user);
+        }
       }
     }
   };
@@ -279,21 +279,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   };
 
-  const connectUser = useCallback((connection: any, userId: string | null) => {
-    if (connection.status === "connected") {
-      if (!userId) {
-        setUser(connection.selfID.id);
-      }
-    } else {
-      setUser(null);
-      setWallet("");
-    }
-  }, []);
-
   const initUser = useCallback(
     (userId: string | null) => {
       if (userId) {
-        getAddress(setWallet);
         getWorkflowsList(userId);
         requestPermission(setToken, setIsBrowserSupported);
       } else {
@@ -307,24 +295,6 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   useEffect(() => {
     initUser(user);
   }, [user, initUser]);
-
-  // set user id on success authentication
-  useEffect(() => {
-    connectUser(connection, user);
-  }, [connection, user, connectUser]);
-
-  // Automatically sign in user if SelfID cookie exists
-  useEffect(() => {
-    const cookie = getSelfIdCookie();
-    if (
-      cookie &&
-      "ethereum" in window &&
-      connection.status !== "connecting" &&
-      connection.status !== "connected"
-    ) {
-      createAuthProvider().then(connect);
-    }
-  }, [connection, connect]);
 
   // Filter EVM to FCM workflow from the list of user's workflows
   useEffect(() => {
@@ -383,6 +353,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       value={{
         user,
         disconnect,
+        connect,
         wallet,
         walletWorkflowState,
         tokenWorkflowState,
