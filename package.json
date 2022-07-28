@@ -14,6 +14,7 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "axios": "^0.27.2",
+    "ethers": "^5.6.9",
     "firebase": "^9.9.0",
     "grindery-ui": "^0.4.5",
     "lodash": "^4.17.21",
@@ -23,8 +24,8 @@
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.5",
     "typescript": "^4.7.4",
-    "use-grindery-nexus": "https://github.com/grindery-io/use-grindery-nexus#web3modal",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "web3modal": "^1.9.8"
   },
   "scripts": {
     "start": "react-scripts start",

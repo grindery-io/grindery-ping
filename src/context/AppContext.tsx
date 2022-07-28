@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
-import { useGrinderyNexus } from "use-grindery-nexus";
+import { useGrinderyNexus } from "../hooks/useGrinderyNexus";
 import _ from "lodash";
 import { defaultFunc } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
