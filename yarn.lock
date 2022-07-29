@@ -5823,9 +5823,10 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4, 
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.10.tgz#147d3a006da4ca3ce14728c7aefc287c367d7a6c"
   integrity sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==
 
-"grindery-nexus-client@https://github.com/grindery-io/grindery-nexus-client.git":
+grindery-nexus-client@^0.1.0:
   version "0.1.0"
-  resolved "https://github.com/grindery-io/grindery-nexus-client.git#7bc125ade9b58cfad5f3f907e059b364d0da549c"
+  resolved "https://registry.yarnpkg.com/grindery-nexus-client/-/grindery-nexus-client-0.1.0.tgz#f00d18c6cdfb429724c84a54b93a80438b8daeab"
+  integrity sha512-WAn7IrWcqRKHpUcAf8+lCdWXKo6KR/Xi5+KOqpPprnJpIh/wYxnpc1IR9s2UzfLZgSdrrBVn0ONCiXlg/isL2g==
   dependencies:
     axios "^0.27.2"
 
@@ -9984,10 +9985,10 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-use-grindery-nexus@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/use-grindery-nexus/-/use-grindery-nexus-0.2.1.tgz#7b49d3d82de06b319d1d8afdbc8700b3dc139ea1"
-  integrity sha512-OENrIcxJnh9YGWyjdZNO2DV6dC628uRaLEodjD3+cwEOgjxnE8bvN46m42bcW4VG9y0/2mHJE0/i80DCOYiffg==
+use-grindery-nexus@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/use-grindery-nexus/-/use-grindery-nexus-0.2.2.tgz#1083be00cf3e816b346de621e2cab1ebc9171279"
+  integrity sha512-60zbMk3Obve4cw4AlEte7ptfaGzufO8nJZGtVHzqnEQ65OgwfOuSCOU3KJrdhHO7cRWXMUyECWu1VnbLXvQg/w==
   dependencies:
     bignumber.js "^9.0.2"
     ethers "^5.6.9"

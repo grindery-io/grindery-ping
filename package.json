@@ -1,6 +1,6 @@
 {
   "name": "grindery-ping",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "engines": {
     "node": "14.17.0"
@@ -15,7 +15,7 @@
     "@types/react-dom": "^18.0.6",
     "axios": "^0.27.2",
     "firebase": "^9.9.0",
-    "grindery-nexus-client": "https://github.com/grindery-io/grindery-nexus-client.git",
+    "grindery-nexus-client": "^0.1.0",
     "grindery-ui": "^0.4.5",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
@@ -24,7 +24,7 @@
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.5",
     "typescript": "^4.7.4",
-    "use-grindery-nexus": "^0.2.1",
+    "use-grindery-nexus": "^0.2.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
