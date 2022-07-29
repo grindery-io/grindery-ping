@@ -1,13 +1,9 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
 import { useGrinderyNexus } from "use-grindery-nexus";
 import _ from "lodash";
+import NexusClient from "grindery-nexus-client";
 import { defaultFunc } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
-import {
-  createWorkflow,
-  listWorkflows,
-  updateWorkflow,
-} from "../helpers/engine";
 import { checkBrowser, requestPermission } from "../helpers/firebase";
 
 const NOTIFICATION = {
@@ -232,14 +228,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Get user's workflows
   const getWorkflowsList = useCallback(async (userId: string) => {
-    const res = await listWorkflows(userId);
-
-    if (res && res.data && res.data.error) {
-      console.error("or_listWorkflows error", res.data.error);
-    }
-    if (res && res.data && res.data.result) {
+    const res = await NexusClient.listWorkflows(userId);
+    if (res) {
       setWorkflows(
-        res.data.result
+        res
           .map((result: any) => ({
             ...result.workflow,
             key: result.key,
@@ -257,11 +249,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         state: "on",
         signature: JSON.stringify(wf),
       };
-      const res = await createWorkflow(readyWorkflow);
-      if (res && res.data && res.data.error) {
-        console.error("createWorkflow error", res.data.error);
-      }
-      if (res && res.data && res.data.result) {
+      const res = await NexusClient.createWorkflow(readyWorkflow);
+      if (res) {
         getWorkflowsList(userId);
       }
     }
@@ -269,12 +258,13 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Edit existing workflow
   const editWorkflow = async (workflow: Workflow, userId: string) => {
-    const res = await updateWorkflow(workflow, userId);
+    const res = await NexusClient.updateWorkflow(
+      workflow.key,
+      userId,
+      workflow
+    );
 
-    if (res && res.data && res.data.error) {
-      console.error("updateWorkflow error", res.data.error);
-    }
-    if (res && res.data && res.data.result) {
+    if (res) {
       getWorkflowsList(userId);
     }
   };

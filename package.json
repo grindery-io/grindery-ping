@@ -15,6 +15,7 @@
     "@types/react-dom": "^18.0.6",
     "axios": "^0.27.2",
     "firebase": "^9.9.0",
+    "grindery-nexus-client": "https://github.com/grindery-io/grindery-nexus-client.git",
     "grindery-ui": "^0.4.5",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
