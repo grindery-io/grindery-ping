@@ -27,4 +27,8 @@ export const IMAGES = {
   WELCOME: "/images/grindery-ping-welcome.svg",
   NOT_SUPOORTED: "/images/grindery-ping-not-supported.svg",
   ENABLE_NOTIFICATIONS: "/images/grindery-ping-enable-notifications.svg",
+  ENABLE_NOTIFICATIONS_CHROME:
+    "/images/grindery-ping-enable-notifications-chrome.svg",
+  ENABLE_NOTIFICATIONS_FIREFOX:
+    "/images/grindery-ping-enable-notifications-firefox.svg",
 };

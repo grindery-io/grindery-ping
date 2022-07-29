@@ -5,6 +5,7 @@ import { ICONS, IMAGES, SCREEN } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
 import { SwitchInput } from "grindery-ui";
 import UserMenu from "../shared/UserMenu";
+import useBrowserName from "../../hooks/useBrowserName";
 
 const Container = styled.div`
   @media (min-width: ${SCREEN.TABLET}) {
@@ -89,6 +90,7 @@ const WelcomePage = (props: Props) => {
     token,
     isBrowserSupported,
   } = useAppContext();
+  const { browser } = useBrowserName();
 
   return (
     <Container>
@@ -123,7 +125,24 @@ const WelcomePage = (props: Props) => {
                       </>
                     ) : (
                       <>
-                        <Img src={IMAGES.ENABLE_NOTIFICATIONS} alt="Welcome" />
+                        {browser === "chrome" && (
+                          <Img
+                            src={IMAGES.ENABLE_NOTIFICATIONS_CHROME}
+                            alt="Welcome"
+                          />
+                        )}
+                        {browser === "firefox" && (
+                          <Img
+                            src={IMAGES.ENABLE_NOTIFICATIONS_FIREFOX}
+                            alt="Welcome"
+                          />
+                        )}
+                        {browser !== "firefox" && browser !== "chrome" && (
+                          <Img
+                            src={IMAGES.ENABLE_NOTIFICATIONS}
+                            alt="Welcome"
+                          />
+                        )}
                         <Desc>Please enable notifications</Desc>
                       </>
                     )}
