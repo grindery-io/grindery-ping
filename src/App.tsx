@@ -1,5 +1,5 @@
 import React from "react";
-import GrinderyNexusContextProvider from "./hooks/useGrinderyNexus";
+import GrinderyNexusContextProvider from "use-grindery-nexus";
 import AppContextProvider from "./context/AppContext";
 import WelcomePage from "./components/pages/WelcomePage";
 
