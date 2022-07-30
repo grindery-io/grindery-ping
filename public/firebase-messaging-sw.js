@@ -26,6 +26,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title || "Title";
   const notificationOptions = {
     body: payload.notification.body || "",
+    icon: "https://ping.grindery.org/logo192.png",
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
