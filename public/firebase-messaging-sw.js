@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-undef */
 importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
 importScripts(
   "https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"
@@ -30,4 +32,14 @@ messaging.onBackgroundMessage((payload) => {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+
+  function handleClick(event) {
+    event.notification.close();
+
+    // Open the url you set on notification.data
+    if (event.notification.data && event.notification.data.url) {
+      clients.openWindow(event.notification.data.url);
+    }
+  }
+  self.addEventListener("notificationclick", handleClick);
 });
