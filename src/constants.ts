@@ -5,8 +5,6 @@ export const SCREEN = {
   DESKTOP_XL: "1600px",
 };
 
-export const WORKFLOW_ENGINE_URL = "https://gnexus-orchestrator.herokuapp.com";
-
 export const ICONS: { [key: string]: string } = {
   GRINDERY: "/images/icons/grindery.svg",
   CERAMIC_LOGO: "/images/icons/ceramic-logo.svg",

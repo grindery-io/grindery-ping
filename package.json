@@ -1,6 +1,6 @@
 {
   "name": "grindery-ping",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "engines": {
     "node": "14.17.0"
@@ -15,7 +15,7 @@
     "@types/react-dom": "^18.0.6",
     "axios": "^0.27.2",
     "firebase": "^9.9.0",
-    "grindery-nexus-client": "^0.1.0",
+    "grindery-nexus-client": "^0.2.0",
     "grindery-ui": "^0.4.5",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
