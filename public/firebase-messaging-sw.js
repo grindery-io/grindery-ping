@@ -25,9 +25,15 @@ messaging.onBackgroundMessage((payload) => {
     payload
   );
 
-  const notificationTitle = payload.notification.title || "Title";
+  const notificationTitle =
+    (payload.data && payload.data.title) ||
+    (payload.notification && payload.notification.title) ||
+    "Title";
   const notificationOptions = {
-    body: payload.notification.body || "",
+    body:
+      (payload.data && payload.data.body) ||
+      (payload.notification && payload.notification.body) ||
+      "",
     icon: "https://ping.grindery.org/logo192.png",
   };
 
@@ -35,7 +41,7 @@ messaging.onBackgroundMessage((payload) => {
 
   function handleClick(event) {
     event.notification.close();
-
+    console.log("clicked notification payload", event.notification.data);
     // Open the url you set on notification.data
     if (event.notification.data && event.notification.data.url) {
       clients.openWindow(event.notification.data.url);
