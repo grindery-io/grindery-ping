@@ -174,37 +174,44 @@ const WelcomePage = (props: Props) => {
                         </label>
                       </div>
                     </SwitchInputWrapper>
-                    <div style={{ display: "none", textAlign: "center" }}>
-                      <Button
-                        onClick={() => {
-                          if (!testResult) {
-                            testNotification(
-                              user || "",
-                              walletWorkflowState.actions[0],
-                              {
-                                tokens: [token],
-                                title: "Test notification",
-                                body: "Grindery ping test notification",
+                    {walletWorkflowState.state &&
+                      walletWorkflowState.state === "on" &&
+                      walletWorkflowState.actions[0].input.tokens && (
+                        <div style={{ textAlign: "center" }}>
+                          <Button
+                            onClick={() => {
+                              if (!testResult) {
+                                testNotification(
+                                  user || "",
+                                  walletWorkflowState.actions[0],
+                                  {
+                                    body: "Grindery ping test notification",
+                                    title: "Test notification",
+                                    tokens:
+                                      walletWorkflowState.actions[0].input
+                                        .tokens,
+                                  }
+                                );
+                              } else {
+                                setTestResult(
+                                  "Wait few seconds before testing again"
+                                );
+                                setTimeout(() => {
+                                  setTestResult("");
+                                }, 5000);
                               }
-                            );
-                          } else {
-                            setTestResult(
-                              "Wait few seconds before testing again"
-                            );
-                            setTimeout(() => {
-                              setTestResult("");
-                            }, 5000);
-                          }
-                        }}
-                        value={
-                          isTesting
-                            ? "Sending..."
-                            : testResult || "Send test notifcaition"
-                        }
-                        loading={isTesting}
-                        color="primary"
-                      />
-                    </div>
+                            }}
+                            value={
+                              isTesting
+                                ? "Sending..."
+                                : testResult || "Send test notifcaition"
+                            }
+                            loading={isTesting}
+                            color="primary"
+                            variant={testResult ? "outlined" : "contained"}
+                          />
+                        </div>
+                      )}
                   </>
                 )}
               </>

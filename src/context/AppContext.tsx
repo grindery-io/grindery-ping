@@ -302,7 +302,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   ) => {
     setIsTesting(true);
     setTestResult("");
-    const res = await NexusClient.testAction(user || "", step, input).catch(
+    const res = await NexusClient.testAction(userAccountId, step, input).catch(
       (err) => {
         console.error("testNotification error:", err.message);
         setTestResult(`Test notification wasn't sent. ${err.message}`);
