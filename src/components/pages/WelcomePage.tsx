@@ -174,7 +174,7 @@ const WelcomePage = (props: Props) => {
                         </label>
                       </div>
                     </SwitchInputWrapper>
-                    <div style={{ textAlign: "center" }}>
+                    <div style={{ display: "none", textAlign: "center" }}>
                       <Button
                         onClick={() => {
                           if (!testResult) {
