@@ -1,7 +1,7 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
 import { useGrinderyNexus } from "use-grindery-nexus";
 import _ from "lodash";
-import NexusClient from "grindery-nexus-client";
+import NexusClient, { Operation } from "grindery-nexus-client";
 import { defaultFunc } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
 import { checkBrowser, requestPermission } from "../helpers/firebase";
@@ -99,6 +99,10 @@ type ContextProps = {
   handleNotificationsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   token: string;
   isBrowserSupported: null | boolean;
+  testNotification: (a: string, b: Operation, c: object) => void;
+  isTesting: boolean;
+  testResult: string;
+  setTestResult: (a: string) => void;
 };
 
 // Context provider props
@@ -117,6 +121,10 @@ export const AppContext = createContext<ContextProps>({
   handleNotificationsChange: defaultFunc,
   token: "",
   isBrowserSupported: null,
+  testNotification: defaultFunc,
+  isTesting: false,
+  testResult: "",
+  setTestResult: defaultFunc,
 });
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
@@ -144,6 +152,12 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   const [isBrowserSupported, setIsBrowserSupported] = useState<null | boolean>(
     null
   );
+
+  // is test notification sending
+  const [isTesting, setIsTesting] = useState(false);
+
+  // test notification result
+  const [testResult, setTestResult] = useState("");
 
   // handle notification toggle change
   const handleNotificationsChange = (
@@ -281,6 +295,28 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     [getWorkflowsList]
   );
 
+  const testNotification = async (
+    userAccountId: string,
+    step: Operation,
+    input: object
+  ) => {
+    setIsTesting(true);
+    setTestResult("");
+    const res = await NexusClient.testAction(user || "", step, input).catch(
+      (err) => {
+        console.error("testNotification error:", err.message);
+        setTestResult(`Test notification wasn't sent. ${err.message}`);
+      }
+    );
+    if (res) {
+      setTestResult("Test notification sent");
+    }
+    setIsTesting(false);
+    setTimeout(() => {
+      setTestResult("");
+    }, 5000);
+  };
+
   // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
     initUser(user);
@@ -350,6 +386,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         handleNotificationsChange,
         token,
         isBrowserSupported,
+        testNotification,
+        isTesting,
+        testResult,
+        setTestResult,
       }}
     >
       {children}

@@ -3,9 +3,10 @@ import styled from "styled-components";
 import ConnectButton from "../shared/ConnectButton";
 import { ICONS, IMAGES, SCREEN } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
-import { SwitchInput } from "grindery-ui";
+import { SwitchInput, Text } from "grindery-ui";
 import UserMenu from "../shared/UserMenu";
 import useBrowserName from "../../hooks/useBrowserName";
+import Button from "../shared/Button";
 
 const Container = styled.div`
   @media (min-width: ${SCREEN.TABLET}) {
@@ -89,6 +90,10 @@ const WelcomePage = (props: Props) => {
     handleNotificationsChange,
     token,
     isBrowserSupported,
+    testNotification,
+    isTesting,
+    testResult,
+    setTestResult,
   } = useAppContext();
   const { browser } = useBrowserName();
 
@@ -169,6 +174,37 @@ const WelcomePage = (props: Props) => {
                         </label>
                       </div>
                     </SwitchInputWrapper>
+                    <div style={{ textAlign: "center" }}>
+                      <Button
+                        onClick={() => {
+                          if (!testResult) {
+                            testNotification(
+                              user || "",
+                              walletWorkflowState.actions[0],
+                              {
+                                tokens: [token],
+                                title: "Test notification",
+                                body: "Grindery ping test notification",
+                              }
+                            );
+                          } else {
+                            setTestResult(
+                              "Wait few seconds before testing again"
+                            );
+                            setTimeout(() => {
+                              setTestResult("");
+                            }, 5000);
+                          }
+                        }}
+                        value={
+                          isTesting
+                            ? "Sending..."
+                            : testResult || "Send test notifcaition"
+                        }
+                        loading={isTesting}
+                        color="primary"
+                      />
+                    </div>
                   </>
                 )}
               </>
