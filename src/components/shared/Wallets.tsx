@@ -247,9 +247,11 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
 const getIconTooltip = (workflow: Workflow) => {
   const chainValue = workflow.trigger.input._grinderyChain;
   if (Array.isArray(chainValue)) {
-    return `Blockchains supported: ${BLOCKCHAINS.map(
-      (chain) => chain.label
-    ).join(", ")}`;
+    return `Blockchains supported: ${BLOCKCHAINS.filter((chain) =>
+      chain.value.includes("eip155")
+    )
+      .map((chain) => chain.label)
+      .join(", ")}`;
   }
   const chainName = BLOCKCHAINS.find(
     (chain) => chain.value === chainValue
