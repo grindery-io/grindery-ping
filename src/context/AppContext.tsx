@@ -212,13 +212,15 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   const testNotification = async () => {
     setIsTesting(true);
     setTestResult("");
+    const currentToken = token;
+    const actionTokens = walletWorkflowState.actions[0].input?.tokens;
     const res = await NexusClient.testAction(
       user || "",
       walletWorkflowState.actions[0],
       {
         title: "Demo notification",
         body: "Browser notification successfully received!",
-        tokens: [token],
+        tokens: [(actionTokens && actionTokens[0]) || currentToken],
       }
     ).catch((err) => {
       console.error("testNotification error:", err.message);

@@ -11,7 +11,7 @@ export type Operation = {
   type: "action" | "trigger";
   connector: string;
   operation: string;
-  input: { [key: string]: string | number | boolean | string[] | number[] };
+  input: { [key: string]: any };
   display?: { [key: string]: string };
   authentication?: string;
   credentials?: { [key: string]: string | number | boolean };
