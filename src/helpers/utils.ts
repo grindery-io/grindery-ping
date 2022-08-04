@@ -83,3 +83,9 @@ export const getSelfIdCookie = () => {
   );
   return b ? b.pop() : "";
 };
+
+export const hideAddress = (address: string) => {
+  return (
+    address.substring(0, 6) + "..." + address.substring(address.length - 4)
+  );
+};

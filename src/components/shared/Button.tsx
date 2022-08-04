@@ -10,6 +10,9 @@ interface ButtonWrapperProps {
 }
 
 const ButtonWrapper = styled.div<ButtonWrapperProps>`
+  & .MuiButton-root {
+    padding: 12px 35px !important;
+  }
   ${(props) =>
     props.hideIconBorder &&
     css`
@@ -21,6 +24,7 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
     `}
   & .MuiButton-root {
     white-space: nowrap;
+    border-radius: 10px;
   }
   @media (min-width: ${SCREEN.TABLET}) {
     ${(props) =>

@@ -2,17 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import { ICONS } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
+import AlertBox from "./AlertBox";
 import Button from "./Button";
+import WarningIcon from "./WarningIcon";
 
-const Disclaimer = styled.div`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 150%;
-  text-align: center;
-  color: #0b0d17;
-  opacity: 0.5;
-  max-width: 500px;
-  margin: 0 auto;
+const ButtonWrapper = styled.div`
+  margin: 10px auto 0;
 `;
 
 type Props = {};
@@ -21,31 +16,26 @@ const ConnectButton = (props: Props) => {
   const { user, connect } = useAppContext();
 
   return user ? null : "ethereum" in window ? (
-    <>
+    <ButtonWrapper>
       <Button
         onClick={() => {
           connect();
         }}
         icon={ICONS.METAMASK_LOGO}
-        value="Connect"
+        value="Connect wallet"
         hideIconBorder
       />
-      <Disclaimer>
-        Grindery Ping uses{" "}
+    </ButtonWrapper>
+  ) : (
+    <AlertBox color="warning" icon={<WarningIcon />}>
+      <p>
+        The app is unable to detect{" "}
         <a href="https://metamask.io/" target="_blank" rel="noreferrer">
           MetaMask
-        </a>{" "}
-        to authenticate users.
-      </Disclaimer>
-    </>
-  ) : (
-    <p style={{ textAlign: "center" }}>
-      An injected Ethereum provider such as{" "}
-      <a href="https://metamask.io/" target="_blank" rel="noreferrer">
-        MetaMask
-      </a>{" "}
-      is needed to authenticate.
-    </p>
+        </a>
+        . Make sure you have it installed in this browser.
+      </p>
+    </AlertBox>
   );
 };
 

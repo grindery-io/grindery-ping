@@ -1,92 +1,18 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
 import { useGrinderyNexus } from "use-grindery-nexus";
 import _ from "lodash";
-import NexusClient, { Operation } from "grindery-nexus-client";
+import NexusClient from "grindery-nexus-client";
 import { defaultFunc } from "../helpers/utils";
 import { Workflow } from "../types/Workflow";
 import { checkBrowser, requestPermission } from "../helpers/firebase";
-
-const NOTIFICATION = {
-  TITLE: "Event detected",
-  BODY: "You received a deposit from {{trigger.from}}",
-};
-
-// New wallet workflow object
-const walletWorkflow: Workflow = {
-  title: "Grindery Ping notifications for Wallet transaction",
-  trigger: {
-    type: "trigger",
-    connector: "evmWallet",
-    operation: "newTransaction",
-    input: {
-      _grinderyChain: [
-        "eip155:42161",
-        "eip155:43114",
-        "eip155:56",
-        "eip155:42220",
-        "eip155:1",
-        "eip155:250",
-        "eip155:137",
-        "eip155:100",
-        "eip155:1666600000",
-      ],
-      to: "",
-    },
-  },
-  actions: [
-    {
-      type: "action",
-      connector: "firebaseCloudMessagingConnector",
-      operation: "fcmPushNotification",
-      input: {
-        tokens: [""],
-        title: NOTIFICATION.TITLE,
-        body: NOTIFICATION.BODY,
-      },
-    },
-  ],
-  creator: "",
-  state: "off",
-};
-
-// New token workflow object
-const tokenWorkflow: Workflow = {
-  title: "Grindery Ping notifications for ERC-20 Token transfer",
-  trigger: {
-    type: "trigger",
-    connector: "erc20",
-    operation: "TransferTrigger",
-    input: {
-      _grinderyChain: [
-        "eip155:42161",
-        "eip155:43114",
-        "eip155:56",
-        "eip155:42220",
-        "eip155:1",
-        "eip155:250",
-        "eip155:137",
-        "eip155:100",
-        "eip155:1666600000",
-      ],
-      _grinderyContractAddress: "0x0",
-      to: "",
-    },
-  },
-  actions: [
-    {
-      type: "action",
-      connector: "firebaseCloudMessagingConnector",
-      operation: "fcmPushNotification",
-      input: {
-        tokens: [""],
-        title: NOTIFICATION.TITLE,
-        body: NOTIFICATION.BODY,
-      },
-    },
-  ],
-  creator: "",
-  state: "off",
-};
+import {
+  BLOCKCHAINS,
+  EVM_CHAINS,
+  flowWorkflow,
+  nearWalletWorkflow,
+  tokenWorkflow,
+  walletWorkflow,
+} from "../constants";
 
 // Context props
 type ContextProps = {
@@ -99,10 +25,19 @@ type ContextProps = {
   handleNotificationsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   token: string;
   isBrowserSupported: null | boolean;
-  testNotification: (a: string, b: Operation, c: object) => void;
+  testNotification: () => void;
   isTesting: boolean;
   testResult: string;
   setTestResult: (a: string) => void;
+  additionalWorkflows: Workflow[];
+  addAdditionalWorkflow: (
+    a: string,
+    b: string,
+    c: () => void,
+    d: string
+  ) => void;
+  deleteWorkflow: (a: string, b: string) => void;
+  toggleWorkflow: (a: Workflow, b: string) => void;
 };
 
 // Context provider props
@@ -125,6 +60,10 @@ export const AppContext = createContext<ContextProps>({
   isTesting: false,
   testResult: "",
   setTestResult: defaultFunc,
+  additionalWorkflows: [],
+  addAdditionalWorkflow: defaultFunc,
+  deleteWorkflow: defaultFunc,
+  toggleWorkflow: defaultFunc,
 });
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
@@ -159,6 +98,11 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   // test notification result
   const [testResult, setTestResult] = useState("");
 
+  // Additional notifciation workflows
+  const [additionalWorkflows, setAdditionalWorkflows] = useState<Workflow[]>(
+    []
+  );
+
   // handle notification toggle change
   const handleNotificationsChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -167,25 +111,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       // Set wallet workflow data
       let enrichedWalletWorkflow = { ...walletWorkflowState };
       const walletInput: any = {
-        title: "Grindery Ping notifications for Wallet transaction",
         creator: user || "",
-        "trigger.input._grinderyChain": [
-          "eip155:42161",
-          "eip155:43114",
-          "eip155:56",
-          "eip155:42220",
-          "eip155:1",
-          "eip155:250",
-          "eip155:137",
-          "eip155:100",
-          "eip155:1666600000",
-        ],
         "trigger.input.to": wallet || "",
         "actions[0].input.tokens": token ? [token] : [],
-        "actions[0].input.title": NOTIFICATION.TITLE,
-        "actions[0].input.body": NOTIFICATION.BODY,
-        "actions[0].connector": "firebaseCloudMessagingConnector",
-        "actions[0].operation": "fcmPushNotification",
       };
       Object.keys(walletInput).forEach((path) => {
         _.set(enrichedWalletWorkflow, path, walletInput[path]);
@@ -194,25 +122,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       // Set token workflow data
       let enrichedTokenWorkflow = { ...tokenWorkflowState };
       const tokenInput: any = {
-        title: "Grindery Ping notifications for ERC-20 Token transfer",
         creator: user || "",
-        "trigger.input._grinderyChain": [
-          "eip155:42161",
-          "eip155:43114",
-          "eip155:56",
-          "eip155:42220",
-          "eip155:1",
-          "eip155:250",
-          "eip155:137",
-          "eip155:100",
-          "eip155:1666600000",
-        ],
         "trigger.input.to": wallet || "",
         "actions[0].input.tokens": token ? [token] : [],
-        "actions[0].input.title": NOTIFICATION.TITLE,
-        "actions[0].input.body": NOTIFICATION.BODY,
-        "actions[0].connector": "firebaseCloudMessagingConnector",
-        "actions[0].operation": "fcmPushNotification",
       };
       Object.keys(tokenInput).forEach((path) => {
         _.set(enrichedTokenWorkflow, path, tokenInput[path]);
@@ -283,6 +195,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   };
 
+  // Initialize user
   const initUser = useCallback(
     (userId: string | null) => {
       if (userId) {
@@ -295,26 +208,131 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     [getWorkflowsList]
   );
 
-  const testNotification = async (
-    userAccountId: string,
-    step: Operation,
-    input: object
-  ) => {
+  // Test notification action
+  const testNotification = async () => {
     setIsTesting(true);
     setTestResult("");
-    const res = await NexusClient.testAction(userAccountId, step, input).catch(
-      (err) => {
-        console.error("testNotification error:", err.message);
-        setTestResult(`Test notification wasn't sent. ${err.message}`);
+    const res = await NexusClient.testAction(
+      user || "",
+      walletWorkflowState.actions[0],
+      {
+        title: "Demo notification",
+        body: "Browser notification successfully received!",
+        tokens: [token],
       }
-    );
+    ).catch((err) => {
+      console.error("testNotification error:", err.message);
+      setTestResult(`Test notification wasn't sent. Server error.`);
+    });
     if (res) {
-      setTestResult("Test notification sent");
+      setTestResult("Test notification sent.");
     }
     setIsTesting(false);
     setTimeout(() => {
       setTestResult("");
-    }, 5000);
+    }, 10000);
+  };
+
+  // Create additional EVM, FLow or Near workflow
+  const addAdditionalWorkflow = (
+    chain: string,
+    address: string,
+    callback: () => void,
+    userId: string
+  ) => {
+    let newWF = walletWorkflow;
+
+    if (chain === "flow:mainnet") {
+      newWF = flowWorkflow;
+      const input: any = {
+        "trigger.input.to": address || "",
+        creator: user || "",
+        "actions[0].input.tokens": token ? [token] : [],
+      };
+      Object.keys(input).forEach((path) => {
+        _.set(newWF, path, input[path]);
+      });
+    }
+
+    if (chain === "near:mainnet") {
+      newWF = nearWalletWorkflow;
+      const input: any = {
+        "trigger.input.to": address || "",
+        creator: user || "",
+        "actions[0].input.tokens": token ? [token] : [],
+      };
+      Object.keys(input).forEach((path) => {
+        _.set(newWF, path, input[path]);
+      });
+    }
+
+    if (chain === "evm") {
+      newWF = walletWorkflow;
+      const input: any = {
+        title: "Grindery Ping notifications for MetaMask wallet transaction",
+        "trigger.input.to": address || "",
+        creator: user || "",
+        "actions[0].input.tokens": token ? [token] : [],
+      };
+      Object.keys(input).forEach((path) => {
+        _.set(newWF, path, input[path]);
+      });
+    }
+
+    if (EVM_CHAINS.includes(chain)) {
+      newWF = walletWorkflow;
+      const chainName = BLOCKCHAINS.find((c) => c.value === chain)?.label || "";
+      const input: any = {
+        title: `Grindery Ping notifications for a transaction on ${chainName} chain`,
+        "trigger.input.to": address || "",
+        "trigger.input._grinderyChain": chain || "",
+        creator: user || "",
+        "actions[0].input.tokens": token ? [token] : [],
+      };
+      Object.keys(input).forEach((path) => {
+        _.set(newWF, path, input[path]);
+      });
+    }
+
+    saveWorkflow(newWF, userId);
+    callback();
+  };
+
+  // turn workflow on/off by key
+  const toggleWorkflow = async (workflow: Workflow, userId: string) => {
+    let updatedWorkflow = {
+      ...workflow,
+      state: workflow.state === "on" ? "off" : "on",
+    };
+
+    const input: any = {
+      "actions[0].input.tokens": token ? [token] : [],
+    };
+    Object.keys(input).forEach((path) => {
+      _.set(updatedWorkflow, path, input[path]);
+    });
+
+    const res = await NexusClient.updateWorkflow(
+      workflow.key,
+      userId,
+      updatedWorkflow
+    );
+
+    if (res) {
+      getWorkflowsList(userId);
+    }
+  };
+
+  // Delete workflow by key
+  const deleteWorkflow = async (userAccountId: string, key: string) => {
+    const res = await NexusClient.deleteWorkflow(userAccountId, key).catch(
+      (err) => {
+        console.error("deleteWorkflow error:", err.message);
+      }
+    );
+    if (res) {
+      getWorkflowsList(userAccountId);
+    }
   };
 
   // Request user address, workflows list and notification permissions when user id is set
@@ -322,24 +340,18 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     initUser(user);
   }, [user, initUser]);
 
-  // Filter EVM to FCM workflow from the list of user's workflows
+  // Filter notifications workflows from the list of user's workflows
   useEffect(() => {
     if (workflows && workflows.length > 0 && wallet) {
       const walletNotificationWorkflow = workflows.find(
         (wf) =>
           wf &&
-          wf.trigger &&
-          wf.trigger.operation === "newTransaction" &&
-          wf.trigger.connector === "evmWallet" &&
-          wf.trigger.input &&
-          wf.trigger.input.to &&
-          wf.trigger.input.to === wallet &&
-          wf.actions &&
-          wf.actions[0] &&
-          (wf.actions[0].connector === "firebaseCloudMessaging" ||
-            wf.actions[0].connector === "firebaseCloudMessagingConnector") &&
-          (wf.actions[0].operation === "sendPushNotification" ||
-            wf.actions[0].operation === "fcmPushNotification")
+          wf.trigger?.operation === "newTransaction" &&
+          wf.trigger?.connector === "evmWallet" &&
+          wf.trigger?.input?.to === wallet &&
+          Array.isArray(wf.trigger?.input?._grinderyChain) &&
+          wf.actions[0]?.connector === "firebaseCloudMessagingConnector" &&
+          wf.actions[0]?.operation === "fcmPushNotification"
       );
       if (walletNotificationWorkflow) {
         setWalletWorkflowState(walletNotificationWorkflow);
@@ -348,22 +360,35 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       const tokenNotificationWorkflow = workflows.find(
         (wf) =>
           wf &&
-          wf.trigger &&
-          wf.trigger.operation === "TransferTrigger" &&
-          wf.trigger.connector === "erc20" &&
-          wf.trigger.input &&
-          wf.trigger.input.to &&
-          wf.trigger.input.to === wallet &&
-          wf.actions &&
-          wf.actions[0] &&
-          (wf.actions[0].connector === "firebaseCloudMessaging" ||
-            wf.actions[0].connector === "firebaseCloudMessagingConnector") &&
-          (wf.actions[0].operation === "sendPushNotification" ||
-            wf.actions[0].operation === "fcmPushNotification")
+          wf.trigger?.operation === "TransferTrigger" &&
+          wf.trigger?.connector === "erc20" &&
+          wf.trigger?.input?.to === wallet &&
+          Array.isArray(wf.trigger?.input?._grinderyChain) &&
+          wf.actions[0]?.connector === "firebaseCloudMessagingConnector" &&
+          wf.actions[0]?.operation === "fcmPushNotification"
       );
       if (tokenNotificationWorkflow) {
         setTokenWorkflowState(tokenNotificationWorkflow);
       }
+
+      const additionalWFs = workflows.filter(
+        (wf) =>
+          ((wf.trigger?.operation === "TransferTrigger" &&
+            wf.trigger?.connector === "erc20") ||
+            (wf.trigger?.operation === "newTransaction" &&
+              wf.trigger?.connector === "evmWallet") ||
+            (wf.trigger?.operation === "newTransaction" &&
+              wf.trigger?.connector === "near") ||
+            (wf.trigger?.operation === "TokenTransferTrigger" &&
+              wf.trigger?.connector === "near") ||
+            (wf.trigger?.operation === "TokenTransferTrigger" &&
+              wf.trigger?.connector === "flow")) &&
+          wf?.actions[0]?.connector === "firebaseCloudMessagingConnector" &&
+          wf?.actions[0]?.operation === "fcmPushNotification" &&
+          !Array.isArray(wf.trigger.input._grinderyChain)
+      );
+
+      setAdditionalWorkflows(additionalWFs);
     }
   }, [workflows, wallet]);
 
@@ -390,6 +415,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         isTesting,
         testResult,
         setTestResult,
+        additionalWorkflows,
+        addAdditionalWorkflow,
+        deleteWorkflow,
+        toggleWorkflow,
       }}
     >
       {children}
