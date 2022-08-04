@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { DialogBox } from "grindery-ui";
 import useAppContext from "../../hooks/useAppContext";
 import TopBar from "../shared/TopBar";
+import useBrowserName from "../../hooks/useBrowserName";
 
 const DialogTrigger = styled.span`
   text-decoration: underline;
@@ -47,6 +48,7 @@ const NotificationsDisabledBar = (props: Props) => {
   const { token } = useAppContext();
   const [dialogOpened, setDialogOpened] = useState(false);
   const [showBar, setShowBar] = useState(false);
+  const { browser } = useBrowserName();
 
   const handleLearnHowClick = () => {
     setDialogOpened(true);
@@ -95,8 +97,12 @@ const NotificationsDisabledBar = (props: Props) => {
           </DialogCloseButton>
           <ImageWrapper>
             <img
-              src="/images/enable-notifications-chrome.png"
-              alt="how to enable chrome browser notifications"
+              src={
+                browser === "firefox"
+                  ? "/images/enable-notifications-firefox.png"
+                  : "/images/enable-notifications-chrome.png"
+              }
+              alt="how to enable browser notifications"
             />
           </ImageWrapper>
         </DialogContent>
