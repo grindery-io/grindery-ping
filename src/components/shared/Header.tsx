@@ -44,8 +44,8 @@ const Header = (props: Props) => {
       />
       <Title>{!user ? "Welcome to Ping" : "Get a Ping!"}</Title>
       <Desc>
-        Ping allows you to receive a browser notification when a token is
-        deposited on any of your wallets on any blockchain.
+        Ping sends you a browser notification when a token is deposited to any
+        of your wallers on any blockchain.
       </Desc>
     </>
   );
