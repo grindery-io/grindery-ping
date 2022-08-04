@@ -7,6 +7,7 @@ import Header from "../shared/Header";
 import Wallets from "../shared/Wallets";
 import NotificationsDisabledBar from "../shared/NotificationsDisabledBar";
 import NotificationsEnabledBar from "../shared/NotificationsEnabledBar";
+import useBrowserName from "../../hooks/useBrowserName";
 
 const Container = styled.div`
   padding: 60px 20px;
@@ -27,12 +28,14 @@ type Props = {};
 
 const WelcomePage = (props: Props) => {
   const { user, isBrowserSupported } = useAppContext();
+  const { browser } = useBrowserName();
 
   return (
     <Container>
       <Wrapper>
         <Header />
-        {isBrowserSupported !== null && !isBrowserSupported ? (
+        {(isBrowserSupported !== null && !isBrowserSupported) ||
+        browser === "firefox" ? (
           <BrowserNotSupported />
         ) : (
           <>

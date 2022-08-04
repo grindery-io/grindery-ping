@@ -16,14 +16,6 @@ const BrowserNotSupported = (props: Props) => {
         >
           Chrome
         </a>{" "}
-        or{" "}
-        <a
-          href="https://www.mozilla.org/en-US/firefox/new/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Firefox
-        </a>{" "}
         and make sure you have MetaMask installed.
       </p>
     </AlertBox>
