@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, isSupported } from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  isSupported,
+  onMessage,
+} from "firebase/messaging";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -16,6 +21,24 @@ const firebaseApp = initializeApp(firebaseConfig);
 
 // // Initialize Firebase Cloud Messaging
 const messaging = getMessaging(firebaseApp);
+
+onMessage(messaging, (payload) => {
+  const notificationTitle =
+    (payload.data && payload.data.title) ||
+    (payload.notification && payload.notification.title) ||
+    "Title";
+  const notificationOptions = {
+    body:
+      (payload.data && payload.data.body) ||
+      (payload.notification && payload.notification.body) ||
+      "",
+    icon:
+      (payload.data && payload.data.icon) ||
+      "https://ping.grindery.org/logo192.png",
+  };
+
+  new Notification(notificationTitle, notificationOptions);
+});
 
 // Request permissions to receive notifications
 export const requestPermission = (
