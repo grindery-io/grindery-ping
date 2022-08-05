@@ -220,9 +220,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       {
         title: "Demo notification",
         body: "Browser notification successfully received!",
-        tokens: [
-          "cE0IvPddO-cY0qA0SmE-Iz:APA91bHR1PnhcA65kaq_PPLqz1scJN0NluuAXDmTcmCtLnVPn3Xl21JZC9pht5xUwEU6-4YzpuWwhBg1-l4YGU8CLuO1qa7Wk2NUKiCkdxkzW1b8J5RvFOLorNStSax4C4EPIRBBELqS",
-        ], //[(actionTokens && actionTokens[0]) || currentToken],
+        tokens: [(actionTokens && actionTokens[0]) || currentToken],
       }
     ).catch((err) => {
       console.error("testNotification error:", err.message);
