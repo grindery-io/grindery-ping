@@ -13,6 +13,7 @@ import {
   tokenWorkflow,
   walletWorkflow,
 } from "../constants";
+import axios from "axios";
 
 // Context props
 type ContextProps = {
@@ -336,6 +337,21 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   };
 
+  // save user wallet address to CRM
+  const saveWallet = async (userId: string, walletAddress: string) => {
+    try {
+      NexusClient.saveWalletAddress(userId, walletAddress);
+    } catch (err) {
+      let error = "";
+      if (typeof err === "string") {
+        error = err;
+      } else if (err instanceof Error) {
+        error = err.message;
+      }
+      console.error("saveWalletAddress error:", error);
+    }
+  };
+
   // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
     initUser(user);
@@ -397,6 +413,12 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   useEffect(() => {
     checkBrowser(setIsBrowserSupported);
   }, []);
+
+  useEffect(() => {
+    if (user && wallet) {
+      saveWallet(user, wallet);
+    }
+  }, [user, wallet]);
 
   console.log("token", token);
 
