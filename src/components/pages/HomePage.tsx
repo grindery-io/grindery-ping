@@ -8,6 +8,7 @@ import Wallets from "../shared/Wallets";
 import NotificationsDisabledBar from "../shared/NotificationsDisabledBar";
 import NotificationsEnabledBar from "../shared/NotificationsEnabledBar";
 import useBrowserName from "../../hooks/useBrowserName";
+import FundedBy from "../shared/FundedBy";
 
 const Container = styled.div`
   padding: 60px 20px;
@@ -35,12 +36,18 @@ const WelcomePage = (props: Props) => {
       <Wrapper>
         <Header />
         {(isBrowserSupported !== null && !isBrowserSupported) ||
-        browser === "firefox" ? (
-          <BrowserNotSupported />
+        browser !== "chrome" ? (
+          <>
+            <BrowserNotSupported />
+            <FundedBy />
+          </>
         ) : (
           <>
             {!user ? (
-              <ConnectButton />
+              <>
+                <ConnectButton />
+                <FundedBy />
+              </>
             ) : (
               <>
                 <NotificationsDisabledBar />
