@@ -12,6 +12,7 @@ import {
   nearWalletWorkflow,
   subscribeUserAction,
   tokenWorkflow,
+  unsubscribeUserAction,
   walletWorkflow,
 } from "../constants";
 
@@ -357,10 +358,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     notificationToken: string
   ) => {
     const isUserUnSubscribed = Boolean(
-      localStorage.getItem("gr_ping_updates_canceled" + userID)
+      localStorage.getItem("gr_ping_updates_canceled_" + userID)
     );
     const isUserSubscribed = Boolean(
-      localStorage.getItem("gr_ping_updates" + userID)
+      localStorage.getItem("gr_ping_updates_" + userID)
     );
     if (
       userID &&
@@ -373,7 +374,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           topic: subscribeUserAction.input.topic,
           tokens: [notificationToken],
         });
-        localStorage.setItem("gr_ping_updates" + userID, "yes");
+        localStorage.setItem("gr_ping_updates_" + userID, "yes");
       } catch (err) {
         let error = "";
         if (typeof err === "string") {
@@ -382,6 +383,40 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           error = err.message;
         }
         console.error("subscribeUserToUpdates error:", error);
+      }
+    }
+  };
+
+  const unsubscribeUserFromUpdates = async (
+    userID: string,
+    notificationToken: string
+  ) => {
+    const isUserUnSubscribed = Boolean(
+      localStorage.getItem("gr_ping_updates_canceled_" + userID)
+    );
+    const isUserSubscribed = Boolean(
+      localStorage.getItem("gr_ping_updates_" + userID)
+    );
+    if (
+      userID &&
+      notificationToken &&
+      !isUserUnSubscribed &&
+      isUserSubscribed
+    ) {
+      try {
+        await NexusClient.testAction(userID || "", unsubscribeUserAction, {
+          topic: unsubscribeUserAction.input.topic,
+          tokens: [notificationToken],
+        });
+        localStorage.setItem("gr_ping_updates_canceled_" + userID, "yes");
+      } catch (err) {
+        let error = "";
+        if (typeof err === "string") {
+          error = err;
+        } else if (err instanceof Error) {
+          error = err.message;
+        }
+        console.error("unsubscribeUserFromUpdates error:", error);
       }
     }
   };

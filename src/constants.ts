@@ -262,3 +262,13 @@ export const subscribeUserAction: Operation = {
     tokens: [""],
   },
 };
+
+export const unsubscribeUserAction: Operation = {
+  type: "action",
+  connector: "firebaseCloudMessagingConnector",
+  operation: "unsubscribeDeviceFromTopic",
+  input: {
+    topic: "grindery-ping-updates",
+    tokens: [""],
+  },
+};
