@@ -10,10 +10,10 @@ import {
   EVM_CHAINS,
   flowWorkflow,
   nearWalletWorkflow,
+  subscribeUserAction,
   tokenWorkflow,
   walletWorkflow,
 } from "../constants";
-import axios from "axios";
 
 // Context props
 type ContextProps = {
@@ -352,6 +352,40 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   };
 
+  const subscribeUserToUpdates = async (
+    userID: string,
+    notificationToken: string
+  ) => {
+    const isUserUnSubscribed = Boolean(
+      localStorage.getItem("gr_ping_updates_canceled" + userID)
+    );
+    const isUserSubscribed = Boolean(
+      localStorage.getItem("gr_ping_updates" + userID)
+    );
+    if (
+      userID &&
+      notificationToken &&
+      !isUserUnSubscribed &&
+      !isUserSubscribed
+    ) {
+      try {
+        await NexusClient.testAction(userID || "", subscribeUserAction, {
+          topic: subscribeUserAction.input.topic,
+          tokens: [notificationToken],
+        });
+        localStorage.setItem("gr_ping_updates" + userID, "yes");
+      } catch (err) {
+        let error = "";
+        if (typeof err === "string") {
+          error = err;
+        } else if (err instanceof Error) {
+          error = err.message;
+        }
+        console.error("subscribeUserToUpdates error:", error);
+      }
+    }
+  };
+
   // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
     initUser(user);
@@ -419,6 +453,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       saveWallet(user, wallet);
     }
   }, [user, wallet]);
+
+  useEffect(() => {
+    subscribeUserToUpdates(user || "", token);
+  }, [token, user]);
 
   console.log("token", token);
 

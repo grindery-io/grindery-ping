@@ -49,4 +49,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Deployement
 
-Commits to the **master** branch will be automatically deployed to Heroku.
+Commits to the **master** branch will be automatically deployed.

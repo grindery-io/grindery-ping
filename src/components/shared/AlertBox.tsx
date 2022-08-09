@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { AlertField } from "grindery-ui";
+import { Alert } from "grindery-ui";
 
 const Wrapper = styled.div`
   margin: 20px 0 0;
@@ -53,9 +53,9 @@ const AlertBox = (props: Props) => {
   const { children, color, icon } = props;
   return (
     <Wrapper>
-      <AlertField color={color} icon={icon}>
+      <Alert color={color} icon={icon}>
         {children}
-      </AlertField>
+      </Alert>
     </Wrapper>
   );
 };

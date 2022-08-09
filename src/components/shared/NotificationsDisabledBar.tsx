@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { DialogBox } from "grindery-ui";
+import { Dialog } from "grindery-ui";
 import useAppContext from "../../hooks/useAppContext";
 import TopBar from "../shared/TopBar";
 import useBrowserName from "../../hooks/useBrowserName";
@@ -73,7 +73,7 @@ const NotificationsDisabledBar = (props: Props) => {
           !
         </p>
       </TopBar>
-      <DialogBox
+      <Dialog
         maxWidth="664px"
         open={dialogOpened}
         onClose={() => {
@@ -106,7 +106,7 @@ const NotificationsDisabledBar = (props: Props) => {
             />
           </ImageWrapper>
         </DialogContent>
-      </DialogBox>
+      </Dialog>
     </>
   ) : null;
 };

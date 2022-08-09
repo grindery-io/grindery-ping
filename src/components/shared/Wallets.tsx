@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Tooltip, { tooltipClasses, TooltipProps } from "@mui/material/Tooltip";
-import { InputBox } from "grindery-ui";
+import { TextInput, Switch } from "grindery-ui";
 import { BLOCKCHAINS, ICONS } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
-import { SwitchInput } from "grindery-ui";
 import { hideAddress } from "../../helpers/utils";
 import Button from "./Button";
 import CustomSelect from "./CustomSelect";
@@ -364,7 +363,7 @@ const Wallets = (props: Props) => {
         <WalletAddress>{hideAddress(wallet)}</WalletAddress>
         <WalletToggle>
           <label>
-            <SwitchInput
+            <Switch
               value={
                 walletWorkflowState.state === "on" &&
                 tokenWorkflowState.state === "on"
@@ -398,7 +397,7 @@ const Wallets = (props: Props) => {
           </WalletAddress>
           <WalletToggle>
             <label>
-              <SwitchInput
+              <Switch
                 value={wf.state === "on"}
                 onChange={() => {
                   handleAdditionalWorkflowChange(wf);
@@ -431,10 +430,10 @@ const Wallets = (props: Props) => {
               />
             </ChainInputWrapper>
             <AddressInputWrapper className={error ? "has-error" : ""}>
-              <InputBox
+              <TextInput
                 value={newWalletAddress}
                 onChange={handleAddressChange}
-                placeholder="Wallet Address"
+                Switch="Wallet Address"
               />
             </AddressInputWrapper>
             <SaveWalletButton>

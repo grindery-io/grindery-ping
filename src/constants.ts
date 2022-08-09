@@ -1,4 +1,4 @@
-import { Workflow } from "./types/Workflow";
+import { Operation, Workflow } from "./types/Workflow";
 
 export const SCREEN = {
   TABLET: "768px",
@@ -251,4 +251,14 @@ export const flowWorkflow: Workflow = {
   ],
   creator: "",
   state: "off",
+};
+
+export const subscribeUserAction: Operation = {
+  type: "action",
+  connector: "firebaseCloudMessagingConnector",
+  operation: "subscribeDeviceToTopic",
+  input: {
+    topic: "grindery-ping-updates",
+    tokens: [""],
+  },
 };
