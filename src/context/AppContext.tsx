@@ -12,7 +12,7 @@ import {
   nearWalletWorkflow,
   subscribeUserAction,
   tokenWorkflow,
-  unsubscribeUserAction,
+  //unsubscribeUserAction,
   walletWorkflow,
 } from "../constants";
 
@@ -70,7 +70,16 @@ export const AppContext = createContext<ContextProps>({
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
   // Auth hook
-  const { user, address, connect, disconnect } = useGrinderyNexus();
+  const {
+    user,
+    address,
+    connect,
+    disconnect,
+    token: nexusToken,
+  } = useGrinderyNexus();
+
+  // Nexus API client
+  const [client, setClient] = useState<NexusClient | null>(null);
 
   // User wallet address
   const wallet = address;
@@ -155,19 +164,22 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   };
 
   // Get user's workflows
-  const getWorkflowsList = useCallback(async (userId: string) => {
-    const res = await NexusClient.listWorkflows(userId);
-    if (res) {
-      setWorkflows(
-        res
-          .map((result: any) => ({
-            ...result.workflow,
-            key: result.key,
-          }))
-          .filter((workflow: Workflow) => workflow)
-      );
-    }
-  }, []);
+  const getWorkflowsList = useCallback(
+    async (userId: string, client: NexusClient) => {
+      const res = await client.listWorkflows(userId);
+      if (res) {
+        setWorkflows(
+          res
+            .map((result: any) => ({
+              ...result.workflow,
+              key: result.key,
+            }))
+            .filter((workflow: Workflow) => workflow)
+        );
+      }
+    },
+    []
+  );
 
   // Save current workflow
   const saveWorkflow = async (wf: Workflow, userId: string) => {
@@ -177,31 +189,30 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         state: "on",
         signature: JSON.stringify(wf),
       };
-      const res = await NexusClient.createWorkflow(readyWorkflow);
-      if (res) {
-        getWorkflowsList(userId);
+      const res = await client?.createWorkflow(readyWorkflow);
+      if (res && client) {
+        getWorkflowsList(userId, client);
       }
     }
   };
 
   // Edit existing workflow
   const editWorkflow = async (workflow: Workflow, userId: string) => {
-    const res = await NexusClient.updateWorkflow(
-      workflow.key,
-      userId,
-      workflow
-    );
+    const res = await client?.updateWorkflow(workflow.key, userId, workflow);
 
-    if (res) {
-      getWorkflowsList(userId);
+    if (res && client) {
+      getWorkflowsList(userId, client);
     }
   };
 
   // Initialize user
   const initUser = useCallback(
-    (userId: string | null) => {
-      if (userId) {
-        getWorkflowsList(userId);
+    (userId: string | null, access_token: string) => {
+      if (userId && access_token) {
+        const nexus = new NexusClient();
+        nexus.authenticate(access_token);
+        setClient(nexus);
+        getWorkflowsList(userId, nexus);
         requestPermission(setToken, setIsBrowserSupported);
       } else {
         setToken("");
@@ -215,18 +226,16 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     setIsTesting(true);
     setTestResult("");
     const currentToken = token;
-    const res = await NexusClient.testAction(
-      user || "",
-      walletWorkflowState.actions[0],
-      {
+    const res = await client
+      ?.testAction(user || "", walletWorkflowState.actions[0], {
         title: "Demo notification",
         body: "Browser notification successfully received!",
         tokens: [currentToken],
-      }
-    ).catch((err) => {
-      console.error("testNotification error:", err.message);
-      setTestResult(`Test notification wasn't sent. Server error.`);
-    });
+      })
+      .catch((err) => {
+        console.error("testNotification error:", err.message);
+        setTestResult(`Test notification wasn't sent. Server error.`);
+      });
     if (res) {
       setTestResult("Test notification sent.");
     }
@@ -315,33 +324,37 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       _.set(updatedWorkflow, path, input[path]);
     });
 
-    const res = await NexusClient.updateWorkflow(
+    const res = await client?.updateWorkflow(
       workflow.key,
       userId,
       updatedWorkflow
     );
 
-    if (res) {
-      getWorkflowsList(userId);
+    if (res && client) {
+      getWorkflowsList(userId, client);
     }
   };
 
   // Delete workflow by key
   const deleteWorkflow = async (userAccountId: string, key: string) => {
-    const res = await NexusClient.deleteWorkflow(userAccountId, key).catch(
-      (err) => {
+    const res = await client
+      ?.deleteWorkflow(userAccountId, key)
+      .catch((err) => {
         console.error("deleteWorkflow error:", err.message);
-      }
-    );
-    if (res) {
-      getWorkflowsList(userAccountId);
+      });
+    if (res && client) {
+      getWorkflowsList(userAccountId, client);
     }
   };
 
   // save user wallet address to CRM
-  const saveWallet = async (userId: string, walletAddress: string) => {
+  const saveWallet = async (
+    userId: string,
+    walletAddress: string,
+    client: NexusClient
+  ) => {
     try {
-      NexusClient.saveWalletAddress(userId, walletAddress);
+      client.saveWalletAddress(userId, walletAddress);
     } catch (err) {
       let error = "";
       if (typeof err === "string") {
@@ -355,7 +368,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   const subscribeUserToUpdates = async (
     userID: string,
-    notificationToken: string
+    notificationToken: string,
+    client: NexusClient
   ) => {
     const isUserUnSubscribed = Boolean(
       localStorage.getItem("gr_ping_updates_canceled_" + userID)
@@ -370,7 +384,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       !isUserSubscribed
     ) {
       try {
-        await NexusClient.testAction(userID || "", subscribeUserAction, {
+        await client.testAction(userID || "", subscribeUserAction, {
           topic: subscribeUserAction.input.topic,
           tokens: [notificationToken],
         });
@@ -387,7 +401,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   };
 
-  const unsubscribeUserFromUpdates = async (
+  /*const unsubscribeUserFromUpdates = async (
     userID: string,
     notificationToken: string
   ) => {
@@ -404,7 +418,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       isUserSubscribed
     ) {
       try {
-        await NexusClient.testAction(userID || "", unsubscribeUserAction, {
+        await client?.testAction(userID || "", unsubscribeUserAction, {
           topic: unsubscribeUserAction.input.topic,
           tokens: [notificationToken],
         });
@@ -419,12 +433,14 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         console.error("unsubscribeUserFromUpdates error:", error);
       }
     }
-  };
+  };*/
 
   // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
-    initUser(user);
-  }, [user, initUser]);
+    if (user && nexusToken && nexusToken.access_token) {
+      initUser(user, nexusToken.access_token);
+    }
+  }, [user, initUser, nexusToken]);
 
   // Filter notifications workflows from the list of user's workflows
   useEffect(() => {
@@ -484,16 +500,18 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   }, []);
 
   useEffect(() => {
-    if (user && wallet) {
-      saveWallet(user, wallet);
+    if (user && wallet && client) {
+      saveWallet(user, wallet, client);
     }
-  }, [user, wallet]);
+  }, [user, wallet, client]);
 
   useEffect(() => {
-    subscribeUserToUpdates(user || "", token);
-  }, [token, user]);
+    if (user && client && token) {
+      subscribeUserToUpdates(user, token, client);
+    }
+  }, [token, user, client]);
 
-  console.log("token", token);
+  console.log("notification token:", token);
 
   return (
     <AppContext.Provider
