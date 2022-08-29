@@ -5,6 +5,7 @@ export type Workflow = {
   actions: Operation[];
   creator: string;
   state?: any;
+  source?: string;
 };
 
 export type Operation = {

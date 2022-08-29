@@ -139,6 +139,9 @@ export const walletWorkflow: Workflow = {
   ],
   creator: "",
   state: "off",
+  source: window.location.origin.includes("//localhost")
+    ? "urn:grindery-staging:ping"
+    : "urn:grindery:ping",
 };
 
 // New token workflow object
@@ -168,6 +171,9 @@ export const tokenWorkflow: Workflow = {
   ],
   creator: "",
   state: "off",
+  source: window.location.origin.includes("//localhost")
+    ? "urn:grindery-staging:ping"
+    : "urn:grindery:ping",
 };
 
 export const nearWalletWorkflow: Workflow = {
@@ -195,6 +201,9 @@ export const nearWalletWorkflow: Workflow = {
   ],
   creator: "",
   state: "off",
+  source: window.location.origin.includes("//localhost")
+    ? "urn:grindery-staging:ping"
+    : "urn:grindery:ping",
 };
 
 export const nearTokenWorkflow: Workflow = {
@@ -223,6 +232,9 @@ export const nearTokenWorkflow: Workflow = {
   ],
   creator: "",
   state: "off",
+  source: window.location.origin.includes("//localhost")
+    ? "urn:grindery-staging:ping"
+    : "urn:grindery:ping",
 };
 
 export const flowWorkflow: Workflow = {
@@ -251,6 +263,9 @@ export const flowWorkflow: Workflow = {
   ],
   creator: "",
   state: "off",
+  source: window.location.origin.includes("//localhost")
+    ? "urn:grindery-staging:ping"
+    : "urn:grindery:ping",
 };
 
 export const subscribeUserAction: Operation = {
