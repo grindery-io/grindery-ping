@@ -309,7 +309,7 @@ export const GRINDERY_APPS = [
     target: "_blank",
   },
   {
-    url: "https://cds.grindery.org/",
+    url: "https://network.grindery.org/",
     name: "CDS",
     description: "Create Connector Description Schema files",
     target: "_blank",
