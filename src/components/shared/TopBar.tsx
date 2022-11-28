@@ -5,8 +5,8 @@ import WarningIcon from "./WarningIcon";
 const Container = styled.div`
   width: 100%;
   box-sizing: border-box;
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 73px;
   left: 0;
   padding: 10px 20px;
   display: flex;

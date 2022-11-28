@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import { AppsMenu } from "grindery-ui";
 import useAppContext from "../../hooks/useAppContext";
 import Logo from "./Logo";
-import { SCREEN } from "../../constants";
+import { GRINDERY_APPS, SCREEN } from "../../constants";
 import UserMenu from "./UserMenu";
+import { useGrinderyNexus } from "use-grindery-nexus";
 
 const Wrapper = styled.div`
   border-bottom: 1px solid #dcdcdc;
@@ -15,6 +17,8 @@ const Wrapper = styled.div`
   flex-wrap: nowrap;
   gap: 10px;
   position: fixed;
+  left: 0;
+  top: 0;
   background: #ffffff;
   width: 435px;
   max-width: 100vw;
@@ -28,10 +32,15 @@ const Wrapper = styled.div`
 `;
 
 const UserWrapper = styled.div`
-  margin-left: auto;
+  margin-left: 0;
   @media (min-width: ${SCREEN.TABLET}) {
     order: 4;
   }
+`;
+
+const AppsMenuWrapper = styled.div`
+  order: 3;
+  margin-left: auto;
 `;
 
 const LogoWrapper = styled.div`
@@ -53,17 +62,53 @@ const CompanyNameWrapper = styled.div`
   }
 `;
 
+const ConnectWrapper = styled.div`
+  order: 4;
+
+  & button {
+    background: #0b0d17;
+    border-radius: 5px;
+    box-shadow: none;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 150%;
+    color: #ffffff;
+    padding: 8px 24px;
+    cursor: pointer;
+    border: none;
+
+    &:hover {
+      box-shadow: 0px 4px 8px rgba(106, 71, 147, 0.1);
+    }
+  }
+`;
+
 type Props = {};
 
 const AppHeader = (props: Props) => {
   const { user } = useAppContext();
+  const { connect } = useGrinderyNexus();
 
   return (
     <Wrapper>
       <LogoWrapper>
         <Logo variant="square" />
       </LogoWrapper>
-      <CompanyNameWrapper>Grindery Ping</CompanyNameWrapper>
+      <CompanyNameWrapper>Ping</CompanyNameWrapper>
+      <AppsMenuWrapper>
+        <AppsMenu apps={GRINDERY_APPS} />
+      </AppsMenuWrapper>
+      {!user && (
+        <ConnectWrapper>
+          <button
+            onClick={() => {
+              connect();
+            }}
+          >
+            Connect wallet
+          </button>
+        </ConnectWrapper>
+      )}
       {user && (
         <UserWrapper>
           <UserMenu />

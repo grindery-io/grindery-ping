@@ -1,39 +1,60 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Foco from "react-foco";
+import Jdenticon from "react-jdenticon";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { ICONS } from "../../constants";
-import useAppContext from "../../hooks/useAppContext";
+import { useGrinderyNexus } from "use-grindery-nexus";
+import { Snackbar } from "grindery-ui";
 
 const UserContainer = styled.div`
   position: relative;
 `;
 
 const UserWrapper = styled.div`
-  border: 1px solid #d3deec;
+  border: 1px solid #dcdcdc;
   border-radius: 34px;
-  padding: 7px 8px;
+  padding: 7px 12px 7px 8px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+
+  transition: border-color 0.2s ease-in-out;
+
+  &:hover,
+  &.opened {
+    border-color: #0b0d17 !important;
+  }
+
+  &.dark:hover,
+  &.dark.opened {
+    border-color: #ffffff !important;
+  }
 `;
 
 const UserStatus = styled.div`
-  background: #00b674;
-  width: 16px;
-  height: 16px;
-  border-radius: 8px;
+  background: #f4f5f7;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  padding: 2px;
 `;
 
 const UserId = styled.p`
   font-weight: 400;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 150%;
   margin: 0;
   padding: 0;
+
+  &.dark {
+    color: #ffffff;
+  }
 `;
 
 const UserDropdown = styled.div`
@@ -45,6 +66,7 @@ const UserDropdown = styled.div`
   visibility: hidden;
   transition: all 0.3s ease-in-out;
   transform: translateY(-10px);
+  z-index: 99;
 
   &.opened {
     opacity: 1;
@@ -57,10 +79,11 @@ const UserDropdownContent = styled.div`
   background: #ffffff;
   border: 1px solid #dcdcdc;
   box-shadow: 2px 2px 24px rgba(0, 0, 0, 0.15);
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 10px;
 
   & button {
+    font-family: Roboto;
     background: transparent;
     display: flex;
     flex-direction: row;
@@ -71,7 +94,14 @@ const UserDropdownContent = styled.div`
     border: none;
     gap: 10px;
     cursor: pointer;
-    padding: 5px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
 
     &:hover {
       background: #fdfbff;
@@ -87,12 +117,17 @@ const UserDropdownContent = styled.div`
   }
 `;
 
-type Props = {};
+type Props = {
+  mode?: "dark" | "light";
+};
 
 const UserMenu = (props: Props) => {
-  const { wallet, disconnect } = useAppContext();
+  const mode = props.mode || "light";
+  const { address, disconnect } = useGrinderyNexus();
   const [menuOpened, setMenuOpened] = useState(false);
-  return wallet ? (
+  const [copied, setCopied] = useState(false);
+
+  return address ? (
     <UserContainer>
       <Foco
         onClickOutside={() => {
@@ -106,28 +141,53 @@ const UserMenu = (props: Props) => {
           onClick={() => {
             setMenuOpened(!menuOpened);
           }}
+          className={`${menuOpened ? "opened" : ""} ${mode}`}
         >
-          <UserStatus />
-          <UserId>
-            {wallet.substring(0, 5) +
+          <UserStatus>
+            <Jdenticon size="20" value={encodeURIComponent(address)} />
+          </UserStatus>
+          <UserId className={mode}>
+            {address.substring(0, 6) +
               "..." +
-              wallet.substring(wallet.length - 4)}
+              address.substring(address.length - 4)}
           </UserId>
         </UserWrapper>
 
         <UserDropdown className={menuOpened ? "opened" : ""}>
           <UserDropdownContent>
+            <CopyToClipboard
+              text={address}
+              onCopy={() => {
+                setMenuOpened(false);
+                setCopied(true);
+              }}
+            >
+              <button onClick={() => {}}>
+                <img src={ICONS.COPY} alt="" />
+                <span>{"Copy wallet addres"}</span>
+              </button>
+            </CopyToClipboard>
             <button
               onClick={() => {
                 disconnect();
               }}
             >
-              <img src={ICONS.DISCONNECT} alt="Disconnect icon" />
+              <img src={ICONS.DISCONNECT} alt="" />
               <span>Disconnect</span>
             </button>
           </UserDropdownContent>
         </UserDropdown>
       </Foco>
+      <Snackbar
+        open={copied}
+        handleClose={() => {
+          setCopied(false);
+        }}
+        message="Wallet address copied!"
+        hideCloseButton
+        autoHideDuration={2000}
+        severity="success"
+      />
     </UserContainer>
   ) : null;
 };

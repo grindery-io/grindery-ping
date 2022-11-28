@@ -16,6 +16,7 @@ export const ICONS: { [key: string]: string } = {
   CHECKBOX_EMPTY: "/images/icons/checkbox-empty.svg",
   WALLET: "/images/icons/wallet.svg",
   CLOSE: "images/icons/cross-circle.svg",
+  COPY: "/images/icons/copy.svg",
 };
 
 export const WEB2_CONNECTORS_PATH =
@@ -287,3 +288,30 @@ export const unsubscribeUserAction: Operation = {
     tokens: [""],
   },
 };
+
+export const GRINDERY_APPS = [
+  {
+    url: "https://flow.grindery.org/",
+    name: "Flow",
+    description: "Create workflows witn no-code",
+    target: "_blank",
+  },
+  {
+    url: "https://ping.grindery.org/",
+    name: "Ping",
+    description: "Receive blockchain notifications",
+    target: "_blank",
+  },
+  {
+    url: "https://api.grindery.org/",
+    name: "API",
+    description: "Your gateway to web3 no-code",
+    target: "_blank",
+  },
+  {
+    url: "https://cds.grindery.org/",
+    name: "CDS",
+    description: "Create Connector Description Schema files",
+    target: "_blank",
+  },
+];

@@ -9,9 +9,10 @@ import NotificationsDisabledBar from "../shared/NotificationsDisabledBar";
 import NotificationsEnabledBar from "../shared/NotificationsEnabledBar";
 import useBrowserName from "../../hooks/useBrowserName";
 import FundedBy from "../shared/FundedBy";
+import AppHeader from "../shared/AppHeader";
 
 const Container = styled.div`
-  padding: 60px 20px;
+  padding: 120px 20px 60px;
 `;
 
 const Wrapper = styled.div`
@@ -20,7 +21,7 @@ const Wrapper = styled.div`
   align-items: stretch;
   justify-content: center;
   flex-wrap: nowrap;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 180px);
   max-width: 456px;
   margin: 0 auto;
 `;
@@ -33,6 +34,7 @@ const WelcomePage = (props: Props) => {
 
   return (
     <Container>
+      <AppHeader />
       <Wrapper>
         <Header />
         {(isBrowserSupported !== null && !isBrowserSupported) ||

@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { IMAGES } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
+import AppHeader from "./AppHeader";
 
 const Img = styled.img`
   margin: 0 auto 20px;

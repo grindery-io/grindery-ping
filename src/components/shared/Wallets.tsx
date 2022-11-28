@@ -121,12 +121,19 @@ const AddressInputWrapper = styled.div`
   }
   & .MuiInputBase-root {
     margin: 0;
+    background: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    padding: 6.5px 12px !important;
 
     & input {
-      background: #ffffff;
-      border: 1px solid #dcdcdc;
-      border-radius: 5px;
-      padding: 6.5px 12px;
+      padding: 0 !important;
+    }
+  }
+
+  & .MuiFormControl-root-MuiTextField-root.custom-text-input {
+    input {
+      padding: 0 !important;
     }
   }
 
@@ -147,7 +154,7 @@ const SaveWalletButton = styled.div`
     line-height: 150%;
     color: #ffffff;
     font-weight: 700;
-    margin: 0;
+    margin: 2px 0 0;
 
     &:hover {
       box-shadow: none;
@@ -175,6 +182,10 @@ const CloseForm = styled.button`
 
 const ChainInputWrapper = styled.div`
   height: 38px;
+  & .MuiInputBase-root {
+    border: none !important;
+    padding: 0 !important;
+  }
   & .MuiInputBase-input {
     background: #ffffff;
     border-radius: 5px;
