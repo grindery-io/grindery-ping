@@ -164,7 +164,7 @@ const EarlyAccessModal = (props: Props) => {
     setLoading(true);
     setError("");
     const res = await client
-      ?.requestEarlyAccess(email, "https://flow.grindery.org")
+      ?.requestEarlyAccess(email, "https://ping.grindery.org")
       .catch((err) => {
         console.error(
           "or_requestEarlyAccess error",
