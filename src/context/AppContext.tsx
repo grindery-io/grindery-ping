@@ -40,6 +40,9 @@ type ContextProps = {
   ) => void;
   deleteWorkflow: (a: string, b: string) => void;
   toggleWorkflow: (a: Workflow, b: string) => void;
+  accessAllowed: boolean;
+  verifying: boolean;
+  client: NexusClient | null;
 };
 
 // Context provider props
@@ -66,6 +69,9 @@ export const AppContext = createContext<ContextProps>({
   addAdditionalWorkflow: defaultFunc,
   deleteWorkflow: defaultFunc,
   toggleWorkflow: defaultFunc,
+  accessAllowed: false,
+  verifying: true,
+  client: null,
 });
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
@@ -113,6 +119,11 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   const [additionalWorkflows, setAdditionalWorkflows] = useState<Workflow[]>(
     []
   );
+
+  const [accessAllowed, setAccessAllowed] = useState<boolean>(false);
+
+  // verification state
+  const [verifying, setVerifying] = useState<boolean>(true);
 
   // handle notification toggle change
   const handleNotificationsChange = (
@@ -198,7 +209,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Edit existing workflow
   const editWorkflow = async (workflow: Workflow, userId: string) => {
-    const res = await client?.updateWorkflow(workflow.key, userId, workflow);
+    const res = await client?.updateWorkflow(workflow.key, workflow);
 
     if (res && client) {
       getWorkflowsList(userId, client);
@@ -227,7 +238,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     setTestResult("");
     const currentToken = token;
     const res = await client
-      ?.testAction(user || "", walletWorkflowState.actions[0], {
+      ?.testAction(walletWorkflowState.actions[0], {
         title: "Demo notification",
         body: "Browser notification successfully received!",
         tokens: [currentToken],
@@ -324,11 +335,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       _.set(updatedWorkflow, path, input[path]);
     });
 
-    const res = await client?.updateWorkflow(
-      workflow.key,
-      userId,
-      updatedWorkflow
-    );
+    const res = await client?.updateWorkflow(workflow.key, updatedWorkflow);
 
     if (res && client) {
       getWorkflowsList(userId, client);
@@ -337,11 +344,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Delete workflow by key
   const deleteWorkflow = async (userAccountId: string, key: string) => {
-    const res = await client
-      ?.deleteWorkflow(userAccountId, key)
-      .catch((err) => {
-        console.error("deleteWorkflow error:", err.message);
-      });
+    const res = await client?.deleteWorkflow(key).catch((err) => {
+      console.error("deleteWorkflow error:", err.message);
+    });
     if (res && client) {
       getWorkflowsList(userAccountId, client);
     }
@@ -384,7 +389,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       !isUserSubscribed
     ) {
       try {
-        await client.testAction(userID || "", subscribeUserAction, {
+        await client.testAction(subscribeUserAction, {
           topic: subscribeUserAction.input.topic,
           tokens: [notificationToken],
         });
@@ -434,6 +439,27 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       }
     }
   };*/
+
+  const verifyUser = async () => {
+    setVerifying(true);
+    const res = await client?.isAllowedUser().catch((err) => {
+      console.error("isAllowedUser error:", err.message);
+      setAccessAllowed(false);
+    });
+    if (res) {
+      setAccessAllowed(true);
+    } else {
+      setAccessAllowed(false);
+    }
+    setVerifying(false);
+  };
+
+  useEffect(() => {
+    if (user) {
+      verifyUser();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
@@ -533,6 +559,9 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         addAdditionalWorkflow,
         deleteWorkflow,
         toggleWorkflow,
+        accessAllowed,
+        verifying,
+        client,
       }}
     >
       {children}

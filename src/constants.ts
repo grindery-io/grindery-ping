@@ -17,6 +17,10 @@ export const ICONS: { [key: string]: string } = {
   WALLET: "/images/icons/wallet.svg",
   CLOSE: "images/icons/cross-circle.svg",
   COPY: "/images/icons/copy.svg",
+  // Socials
+  SOCIAL_DISCORD: "/images/icons/social-discord.png",
+  SOCIAL_TG: "/images/icons/social-tg.png",
+  SOCIAL_TWITTER: "/images/icons/social-twitter.png",
 };
 
 export const WEB2_CONNECTORS_PATH =
