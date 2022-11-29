@@ -455,11 +455,11 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && client) {
       verifyUser();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, client]);
 
   // Request user address, workflows list and notification permissions when user id is set
   useEffect(() => {
