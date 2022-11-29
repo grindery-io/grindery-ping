@@ -307,8 +307,8 @@ export const GRINDERY_APPS = [
     target: "_blank",
   },
   {
-    url: "https://api.grindery.org/",
-    name: "API",
+    url: "https://gateway.grindery.org/",
+    name: "Gateway",
     description: "Your gateway to web3 no-code",
     target: "_blank",
   },
