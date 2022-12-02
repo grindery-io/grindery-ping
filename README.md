@@ -1,10 +1,17 @@
-# Grindery Ping App
+# Grindery Ping
+
+<p align="center">
+    <img src="./public/images/ping-featured-image.png?raw=true" alt="Grindery CDS welcome image" />
+</p>
+
+Grindery Ping sends you a browser notification when a token is deposited to any
+of your wallets on any blockchain.
 
 Live URL: https://ping.grindery.org/
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Powered by [Grindery Nexus Ocrhestrator](https://github.com/grindery-io/grindery-nexus-orchestrator).
+## Development
 
-## Available Scripts
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Powered by [Grindery Nexus Ocrhestrator](https://github.com/grindery-io/grindery-nexus-orchestrator).
 
 In the project directory, you can run:
 
