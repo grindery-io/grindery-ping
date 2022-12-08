@@ -50,35 +50,36 @@ const LogoWrapper = styled.div`
 `;
 
 const CompanyNameWrapper = styled.div`
-  display: none;
-  @media (min-width: ${SCREEN.TABLET}) {
-    display: block;
-    order: 3;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 110%;
-    color: #0b0d17;
-    cursor: pointer;
-  }
+  display: block;
+  order: 3;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 110%;
+  color: #0b0d17;
+  cursor: pointer;
 `;
 
 const ConnectWrapper = styled.div`
-  order: 4;
+  display: none;
+  @media (min-width: ${SCREEN.TABLET}) {
+    order: 4;
+    display: block;
 
-  & button {
-    background: #0b0d17;
-    border-radius: 5px;
-    box-shadow: none;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 150%;
-    color: #ffffff;
-    padding: 8px 24px;
-    cursor: pointer;
-    border: none;
+    & button {
+      background: #0b0d17;
+      border-radius: 5px;
+      box-shadow: none;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 150%;
+      color: #ffffff;
+      padding: 8px 24px;
+      cursor: pointer;
+      border: none;
 
-    &:hover {
-      box-shadow: 0px 4px 8px rgba(106, 71, 147, 0.1);
+      &:hover {
+        box-shadow: 0px 4px 8px rgba(106, 71, 147, 0.1);
+      }
     }
   }
 `;
@@ -98,7 +99,7 @@ const AppHeader = (props: Props) => {
       <AppsMenuWrapper>
         <AppsMenu apps={GRINDERY_APPS} />
       </AppsMenuWrapper>
-      {!user && (
+      {!user && "ethereum" in window && (
         <ConnectWrapper>
           <button
             onClick={() => {
