@@ -362,8 +362,6 @@ const Wallets = (props: Props) => {
     setError(false);
   };
 
-  console.log("walletWorkflowState", walletWorkflowState);
-
   return wallet ? (
     <Wrapper>
       <WalletRow className="wallet-row">
