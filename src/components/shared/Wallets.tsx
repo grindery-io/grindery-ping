@@ -126,7 +126,7 @@ const AddressInputWrapper = styled.div`
     border-radius: 5px;
     padding: 6.5px 12px !important;
 
-    & input {
+    & input.MuiInputBase-input {
       padding: 0 !important;
     }
   }
@@ -185,7 +185,9 @@ const ChainInputWrapper = styled.div`
   & .MuiInputBase-root {
     border: none !important;
     padding: 0 !important;
+    margin-top: 2px !important;
   }
+
   & .MuiInputBase-input {
     background: #ffffff;
     border-radius: 5px;
@@ -359,6 +361,8 @@ const Wallets = (props: Props) => {
     setNewWalletChain("eip155:1");
     setError(false);
   };
+
+  console.log("walletWorkflowState", walletWorkflowState);
 
   return wallet ? (
     <Wrapper>

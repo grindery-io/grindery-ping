@@ -177,7 +177,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   // Get user's workflows
   const getWorkflowsList = useCallback(
     async (userId: string, client: NexusClient) => {
-      const res = await client.listWorkflows(userId);
+      const res = await client.listWorkflows();
       if (res) {
         setWorkflows(
           res
