@@ -137,7 +137,15 @@ const SuccessMessage = styled.div`
 type Props = {};
 
 const EarlyAccessModal = (props: Props) => {
-  const { user, accessAllowed, verifying, client } = useAppContext();
+  const {
+    user,
+    accessAllowed,
+    verifying,
+    client,
+    setIsOptedIn,
+    isOptedIn,
+    chekingOptIn,
+  } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -178,7 +186,7 @@ const EarlyAccessModal = (props: Props) => {
       });
     if (res) {
       setSuccess(
-        "We've sent you an email with a personal link, to complete the process and get early access to our platfrom please go to your email and click on the link to verify it's you."
+        "We just sent you a confirmation email. Please check your email and confirm to activate your account."
       );
       //"Your request will be manually reviewed. We'll notify you by email as soon as we have an available opening."
     }
@@ -186,7 +194,7 @@ const EarlyAccessModal = (props: Props) => {
     setLoading(false);
   };
 
-  return user && !accessAllowed && !verifying ? (
+  return user && !accessAllowed && !verifying && !chekingOptIn && !isOptedIn ? (
     <Wrapper>
       <FormWrapper>
         <FormContent>
@@ -204,14 +212,21 @@ const EarlyAccessModal = (props: Props) => {
               />
               <FormTitle>Thank you!</FormTitle>
               <SuccessMessage>{success}</SuccessMessage>
+              <Button
+                value="Continue"
+                onClick={() => {
+                  setIsOptedIn(true);
+                }}
+                loading={loading}
+                disabled={loading}
+              />
             </>
           ) : (
             <>
-              <FormTitle>Get early access!</FormTitle>
+              <FormTitle>Seems like you are new to Grindery.</FormTitle>
               <FormDesc>
-                Grindery Ping is currently in private beta. If you would like to
-                get early access please provide us with an email address to
-                notify you as soon as a slot become available
+                Please provide your email address so we can activate your
+                account.
               </FormDesc>
               <TextInput
                 label="Email *"

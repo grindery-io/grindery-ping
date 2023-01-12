@@ -37,7 +37,11 @@ const ConnectButton = (props: Props) => {
         />
       </ButtonWrapper>
       <ButtonDesc>
-        Grindery Ping uses MetaMask to authenticate users.
+        Grindery Ping uses{" "}
+        <a href="https://metamask.io/" target="_blank" rel="noreferrer">
+          MetaMask
+        </a>{" "}
+        to authenticate users.
       </ButtonDesc>
     </>
   ) : (

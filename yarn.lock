@@ -5845,10 +5845,10 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4, 
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.10.tgz#147d3a006da4ca3ce14728c7aefc287c367d7a6c"
   integrity sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==
 
-grindery-nexus-client@^0.9.8:
-  version "0.9.8"
-  resolved "https://registry.yarnpkg.com/grindery-nexus-client/-/grindery-nexus-client-0.9.8.tgz#7cdba9fac833072afbd1224334291be76b49a234"
-  integrity sha512-A3ESXhvRq3dWN1CMbhPUDFp3XSgS+vPfHcLwy9m/oXcvy0Z50MPrIqCnwpQDQHHljdg49pw+b1h0LgGWCmPwdA==
+grindery-nexus-client@^0.9.10:
+  version "0.9.10"
+  resolved "https://registry.yarnpkg.com/grindery-nexus-client/-/grindery-nexus-client-0.9.10.tgz#57a9fe07e9a917aa852bf11bee6a06abed0f1ad5"
+  integrity sha512-csR+otKNgpQ0ZXs564ZtXejeU6veYQo7I792XBlYu4Wn0Kc2ejPQsOquYzY5wDvTUcbAhRzqNwL5RXcKKZWYBg==
   dependencies:
     axios "^0.27.2"
     jwt-decode "^3.1.2"
