@@ -15,6 +15,7 @@ import {
   //unsubscribeUserAction,
   walletWorkflow,
 } from "../constants";
+import { sendTwitterConversion } from "../utils/twitterTracking";
 
 // Context props
 type ContextProps = {
@@ -556,6 +557,12 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       subscribeUserToUpdates(user, token, client);
     }
   }, [token, user, client]);
+
+  useEffect(() => {
+    if (user) {
+      sendTwitterConversion("tw-ofep3-ofep7");
+    }
+  }, [user]);
 
   console.log("notification token:", token);
 
