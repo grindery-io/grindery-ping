@@ -6,11 +6,10 @@ import HomePage from "./components/pages/HomePage";
 import EarlyAccessModal from "./components/shared/EarlyAccessModal";
 import { initTwitter } from "./utils/twitterTracking";
 
-useEffect(() => {
-  initTwitter();
-}, []);
-
 function App() {
+  useEffect(() => {
+    initTwitter();
+  }, []);
   return (
     <ThemeProvider>
       <GrinderyNexusContextProvider>
