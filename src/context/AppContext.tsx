@@ -188,7 +188,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   // Get user's workflows
   const getWorkflowsList = useCallback(
     async (userId: string, client: NexusClient) => {
-      const res = await client.listWorkflows();
+      const res = await client.workflow.list({});
       if (res) {
         setWorkflows(
           res
@@ -211,7 +211,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         state: "on",
         signature: JSON.stringify(wf),
       };
-      const res = await client?.createWorkflow(readyWorkflow);
+      const res = await client?.workflow.create({ workflow: readyWorkflow });
       if (res && client) {
         getWorkflowsList(userId, client);
       }
@@ -220,7 +220,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Edit existing workflow
   const editWorkflow = async (workflow: Workflow, userId: string) => {
-    const res = await client?.updateWorkflow(workflow.key, workflow);
+    const res = await client?.workflow.update({
+      key: workflow.key,
+      workflow: workflow,
+    });
 
     if (res && client) {
       getWorkflowsList(userId, client);
@@ -231,8 +234,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   const initUser = useCallback(
     (userId: string | null, access_token: string) => {
       if (userId && access_token) {
-        const nexus = new NexusClient();
-        nexus.authenticate(access_token);
+        const nexus = new NexusClient(access_token);
         setClient(nexus);
         getWorkflowsList(userId, nexus);
         requestPermission(setToken, setIsBrowserSupported);
@@ -248,11 +250,14 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     setIsTesting(true);
     setTestResult("");
     const currentToken = token;
-    const res = await client
-      ?.testAction(walletWorkflowState.actions[0], {
-        title: "Demo notification",
-        body: "Browser notification successfully received!",
-        tokens: [currentToken],
+    const res = await client?.connector
+      .testAction({
+        step: walletWorkflowState.actions[0],
+        input: {
+          title: "Demo notification",
+          body: "Browser notification successfully received!",
+          tokens: [currentToken],
+        },
       })
       .catch((err) => {
         console.error("testNotification error:", err.message);
@@ -346,7 +351,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       _.set(updatedWorkflow, path, input[path]);
     });
 
-    const res = await client?.updateWorkflow(workflow.key, updatedWorkflow);
+    const res = await client?.workflow.update({
+      key: workflow.key,
+      workflow: updatedWorkflow,
+    });
 
     if (res && client) {
       getWorkflowsList(userId, client);
@@ -355,7 +363,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   // Delete workflow by key
   const deleteWorkflow = async (userAccountId: string, key: string) => {
-    const res = await client?.deleteWorkflow(key).catch((err) => {
+    const res = await client?.workflow.delete({ key: key }).catch((err) => {
       console.error("deleteWorkflow error:", err.message);
     });
     if (res && client) {
@@ -370,7 +378,10 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     client: NexusClient
   ) => {
     try {
-      client.saveWalletAddress(userId, walletAddress);
+      client.user.saveWalletAddress({
+        walletAddress: userId,
+        email: walletAddress,
+      });
     } catch (err) {
       let error = "";
       if (typeof err === "string") {
@@ -400,9 +411,12 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       !isUserSubscribed
     ) {
       try {
-        await client.testAction(subscribeUserAction, {
-          topic: subscribeUserAction.input.topic,
-          tokens: [notificationToken],
+        await client.connector.testAction({
+          step: subscribeUserAction,
+          input: {
+            topic: subscribeUserAction.input.topic,
+            tokens: [notificationToken],
+          },
         });
         localStorage.setItem("gr_ping_updates_" + userID, "yes");
       } catch (err) {
@@ -453,13 +467,13 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   const verifyUser = async () => {
     setVerifying(true);
-    const res = await client?.isUserHasEmail().catch((err) => {
+    const res = await client?.user.hasEmail().catch((err) => {
       console.error("isUserHasEmail error:", err.message);
       setAccessAllowed(false);
     });
     if (res) {
       setAccessAllowed(true);
-      const optinRes = await client?.isAllowedUser().catch((err) => {
+      const optinRes = await client?.user.isAllowed({}).catch((err) => {
         console.error("isAllowedUser error:", err.message);
         setIsOptedIn(false);
       });

@@ -5845,10 +5845,10 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4, 
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.10.tgz#147d3a006da4ca3ce14728c7aefc287c367d7a6c"
   integrity sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==
 
-grindery-nexus-client@^0.9.10:
-  version "0.9.10"
-  resolved "https://registry.yarnpkg.com/grindery-nexus-client/-/grindery-nexus-client-0.9.10.tgz#57a9fe07e9a917aa852bf11bee6a06abed0f1ad5"
-  integrity sha512-csR+otKNgpQ0ZXs564ZtXejeU6veYQo7I792XBlYu4Wn0Kc2ejPQsOquYzY5wDvTUcbAhRzqNwL5RXcKKZWYBg==
+grindery-nexus-client@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/grindery-nexus-client/-/grindery-nexus-client-1.0.3.tgz#ba21463dab5ea6f297c61fae64e0e507dac444cd"
+  integrity sha512-9lRHobyzHKRj6qUJK4wEyyOWY42/f+EeFHNkvtC0wjJvw/YTfHoB+qcLjbQzfYRUATLEYyPol3RIgyAhor1g6w==
   dependencies:
     axios "^0.27.2"
     jwt-decode "^3.1.2"
@@ -6978,6 +6978,11 @@ jest@^27.4.3:
     "@jest/core" "^27.5.1"
     import-local "^3.0.2"
     jest-cli "^27.5.1"
+
+js-cookie@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.5.tgz#0b7e2fd0c01552c58ba86e0841f94dc2557dcdbc"
+  integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
 
 js-sha3@0.8.0:
   version "0.8.0"

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { TextInput } from "grindery-ui";
 import styled from "styled-components";
+import Cookies from "js-cookie";
 import { ICONS } from "../../constants";
 import useAppContext from "../../hooks/useAppContext";
 import Button from "./Button";
@@ -171,8 +172,14 @@ const EarlyAccessModal = (props: Props) => {
   const requestEarlyAccess = async () => {
     setLoading(true);
     setError("");
-    const res = await client
-      ?.requestEarlyAccess(email, "ping.grindery.org", "Requested to Ping")
+    const res = await client?.user
+      .requestEarlyAccess({
+        email,
+        source: window.location.href,
+        app: "Requested to Ping",
+        hutk: Cookies.get("hubspotutk") || "",
+        pageName: document.getElementsByTagName("title")[0].innerHTML || "",
+      })
       .catch((err) => {
         console.error(
           "or_requestEarlyAccess error",
