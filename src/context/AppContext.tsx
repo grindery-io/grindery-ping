@@ -16,6 +16,7 @@ import {
   walletWorkflow,
 } from "../constants";
 import { sendTwitterConversion } from "../utils/twitterTracking";
+import { sendGoogleEvent } from "../utils/googleTracking";
 
 // Context props
 type ContextProps = {
@@ -574,6 +575,11 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
 
   useEffect(() => {
     if (user) {
+      sendGoogleEvent({
+        event: "registration",
+        authentication_method: "wallet",
+        user_id: user,
+      });
       sendTwitterConversion("tw-ofep3-ofep7");
     }
   }, [user]);
