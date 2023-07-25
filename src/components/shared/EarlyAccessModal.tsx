@@ -179,6 +179,9 @@ const EarlyAccessModal = (props: Props) => {
         app: "Requested to Ping",
         hutk: Cookies.get("hubspotutk") || "",
         pageName: document.getElementsByTagName("title")[0].innerHTML || "",
+        trackSource: window.location.origin.includes("//localhost")
+          ? "urn:grindery-staging:ping"
+          : "urn:grindery:ping",
       })
       .catch((err) => {
         console.error(

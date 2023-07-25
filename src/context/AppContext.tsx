@@ -252,12 +252,15 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     setTestResult("");
     const currentToken = token;
     const res = await client?.connector
-      .testAction({
+      .runAction({
         step: walletWorkflowState.actions[0],
         input: {
           title: "Demo notification",
           body: "Browser notification successfully received!",
           tokens: [currentToken],
+          source: window.location.origin.includes("//localhost")
+            ? "urn:grindery-staging:ping"
+            : "urn:grindery:ping",
         },
       })
       .catch((err) => {
@@ -412,12 +415,15 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       !isUserSubscribed
     ) {
       try {
-        await client.connector.testAction({
+        await client.connector.runAction({
           step: subscribeUserAction,
           input: {
             topic: subscribeUserAction.input.topic,
             tokens: [notificationToken],
           },
+          source: window.location.origin.includes("//localhost")
+            ? "urn:grindery-staging:ping"
+            : "urn:grindery:ping",
         });
         localStorage.setItem("gr_ping_updates_" + userID, "yes");
       } catch (err) {
