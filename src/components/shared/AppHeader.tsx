@@ -5,7 +5,7 @@ import useAppContext from "../../hooks/useAppContext";
 import Logo from "./Logo";
 import { GRINDERY_APPS, SCREEN } from "../../constants";
 import UserMenu from "./UserMenu";
-import { useGrinderyNexus } from "use-grindery-nexus";
+import { useGrinderyLogin } from "use-grindery-login";
 
 const Wrapper = styled.div`
   border-bottom: 1px solid #dcdcdc;
@@ -88,7 +88,7 @@ type Props = {};
 
 const AppHeader = (props: Props) => {
   const { user } = useAppContext();
-  const { connect } = useGrinderyNexus();
+  const { connect } = useGrinderyLogin();
 
   return (
     <Wrapper>

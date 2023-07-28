@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect, useCallback } from "react";
-import { useGrinderyNexus } from "use-grindery-nexus";
+import { useGrinderyLogin } from "use-grindery-login";
 import _ from "lodash";
 import NexusClient from "grindery-nexus-client";
 import { defaultFunc } from "../helpers/utils";
@@ -90,7 +90,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     connect,
     disconnect,
     token: nexusToken,
-  } = useGrinderyNexus();
+  } = useGrinderyLogin();
 
   // Nexus API client
   const [client, setClient] = useState<NexusClient | null>(null);

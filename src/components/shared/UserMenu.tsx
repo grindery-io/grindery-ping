@@ -4,7 +4,7 @@ import Foco from "react-foco";
 import Jdenticon from "react-jdenticon";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { ICONS } from "../../constants";
-import { useGrinderyNexus } from "use-grindery-nexus";
+import { useGrinderyLogin } from "use-grindery-login";
 import { Snackbar } from "grindery-ui";
 
 const UserContainer = styled.div`
@@ -123,7 +123,7 @@ type Props = {
 
 const UserMenu = (props: Props) => {
   const mode = props.mode || "light";
-  const { address, disconnect } = useGrinderyNexus();
+  const { address, disconnect } = useGrinderyLogin();
   const [menuOpened, setMenuOpened] = useState(false);
   const [copied, setCopied] = useState(false);
 
