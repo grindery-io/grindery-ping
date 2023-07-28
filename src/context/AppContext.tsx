@@ -579,17 +579,6 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
   }, [token, user, client]);
 
-  useEffect(() => {
-    if (user) {
-      sendGoogleEvent({
-        event: "registration",
-        authentication_method: "wallet",
-        user_id: user,
-      });
-      sendTwitterConversion("tw-ofep3-ofep7");
-    }
-  }, [user]);
-
   console.log("notification token:", token);
 
   return (
