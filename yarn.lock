@@ -9569,9 +9569,10 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-"use-grindery-login@https://github.com/grindery-io/use-grindery-login":
+use-grindery-login@^0.1.0:
   version "0.1.0"
-  resolved "https://github.com/grindery-io/use-grindery-login#c9157b5dff8c4fb9e65dc1b2e5af61787d56d4da"
+  resolved "https://registry.yarnpkg.com/use-grindery-login/-/use-grindery-login-0.1.0.tgz#47d9cdb3cc49218085ae6985550b82fffee3b187"
+  integrity sha512-1gQz6aZJhxJBBsnO8iik2rdwO0uf3TdZqjUNKQOTAwRRHK2e5xRIYlARyowPw4oN/0Xk9kZWqMYdt2kv2Ngk5A==
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
