@@ -29,7 +29,7 @@
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.5",
     "typescript": "^4.7.4",
-    "use-grindery-login": "^0.1.0",
+    "use-grindery-login": "^0.2.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ThemeProvider } from "grindery-ui";
+import { ThemeProvider, CircularProgress } from "grindery-ui";
 import GrinderyLoginProvider from "use-grindery-login";
 import AppContextProvider from "./context/AppContext";
 import HomePage from "./components/pages/HomePage";
@@ -11,7 +11,13 @@ function App() {
   }, []);
   return (
     <ThemeProvider>
-      <GrinderyLoginProvider>
+      <GrinderyLoginProvider
+        loader={
+          <div style={{ textAlign: "center", margin: "80px auto" }}>
+            <CircularProgress />
+          </div>
+        }
+      >
         <AppContextProvider>
           <HomePage />
         </AppContextProvider>
