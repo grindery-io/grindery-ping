@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Tooltip, { tooltipClasses, TooltipProps } from "@mui/material/Tooltip";
 import { TextInput, Switch } from "grindery-ui";
@@ -253,14 +253,22 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
     border: "none",
     boxShadow: "0px 2px 7px rgba(45, 62, 80, 0.15)",
     borderRadius: "3px",
+    whiteSpace: "pre-wrap",
   },
 }));
 
 const getIconTooltip = (workflow: Workflow) => {
   const chainValue = workflow.trigger.input._grinderyChain;
   if (Array.isArray(chainValue)) {
-    return `Blockchains supported: ${BLOCKCHAINS.filter((chain) =>
-      chain.value.includes("eip155")
+    if (workflow.title.includes("Patch Wallet")) {
+      return `Patch wallet.\nBlockchains supported: ${BLOCKCHAINS.filter(
+        (chain) => chain.value.includes("eip155")
+      )
+        .map((chain) => chain.label)
+        .join(", ")}`;
+    }
+    return `MetaMask wallet.\nBlockchains supported: ${BLOCKCHAINS.filter(
+      (chain) => chain.value.includes("eip155")
     )
       .map((chain) => chain.label)
       .join(", ")}`;
@@ -285,13 +293,35 @@ const Wallets = (props: Props) => {
     deleteWorkflow,
     toggleWorkflow,
     token,
+    patchwalletWorkflows,
+    workflowsLoading,
   } = useAppContext();
+  // get query params
+  const queryString = window.location.search;
+
+  // memoize query params
+  const urlParams = useMemo(
+    () => new URLSearchParams(queryString),
+    [queryString]
+  );
+
+  const patchwalletParam = urlParams.get("patchwallet");
   const [isAddingWallet, setIsAddingWallet] = useState(false);
   const [newWalletAddress, setNewWalletAddress] = useState("");
   const [newWalletChain, setNewWalletChain] = useState("eip155:1");
   const [error, setError] = useState(false);
 
   const chainOptions = [
+    {
+      label: (
+        <ChainOption>
+          <img src="/images/icons/patchwallet.png" alt="" />
+          <span>Patch wallet</span>
+        </ChainOption>
+      ),
+      value: "patchwallet",
+      icon: "/images/icons/patchwallet.png",
+    },
     ...BLOCKCHAINS.map((c) => ({
       label: (
         <ChainOption>
@@ -362,6 +392,23 @@ const Wallets = (props: Props) => {
     setError(false);
   };
 
+  useEffect(() => {
+    if (
+      token &&
+      patchwalletParam &&
+      patchwalletWorkflows.length < 1 &&
+      !workflowsLoading
+    ) {
+      console.log("patchwalletWorkflows", patchwalletWorkflows);
+
+      setIsAddingWallet(true);
+      handleChainChange("patchwallet");
+      if (patchwalletParam.startsWith("0x")) {
+        handleAddressChange(patchwalletParam);
+      }
+    }
+  }, [patchwalletParam, token, patchwalletWorkflows, workflowsLoading]);
+
   return wallet ? (
     <Wrapper>
       <WalletRow className="wallet-row">
@@ -387,15 +434,61 @@ const Wallets = (props: Props) => {
         </WalletToggle>
         <WalletDelete></WalletDelete>
       </WalletRow>
+      {patchwalletWorkflows[0] && (
+        <WalletRow className="wallet-row">
+          <WalletIcon>
+            <HtmlTooltip
+              title={getIconTooltip(patchwalletWorkflows[0])}
+              placement="top"
+            >
+              <img src={"/images/icons/patchwallet.png"} alt="" />
+            </HtmlTooltip>
+          </WalletIcon>
+          <WalletAddress>
+            {hideAddress(
+              patchwalletWorkflows[0].trigger.input?.to?.toString() ||
+                patchwalletWorkflows[0].trigger.input?.receiver_id?.toString() ||
+                ""
+            )}
+          </WalletAddress>
+          <WalletToggle>
+            <label>
+              <Switch
+                value={patchwalletWorkflows[0].state === "on"}
+                onChange={() => {
+                  handleAdditionalWorkflowChange(patchwalletWorkflows[0]);
+                  if (patchwalletWorkflows[1]) {
+                    handleAdditionalWorkflowChange(patchwalletWorkflows[1]);
+                  }
+                }}
+              />
+            </label>
+          </WalletToggle>
+          <WalletDelete>
+            <DeleteButton
+              onClick={() => {
+                handleAddressDelete(patchwalletWorkflows[0].key);
+                if (patchwalletWorkflows[1]) {
+                  handleAddressDelete(patchwalletWorkflows[1].key);
+                }
+              }}
+            >
+              <img src="/images/icons/trash.svg" alt="" />
+            </DeleteButton>
+          </WalletDelete>
+        </WalletRow>
+      )}
       {additionalWorkflows.map((wf: Workflow, i: number) => (
         <WalletRow className="wallet-row" key={wf.key || wf.creator + i}>
           <WalletIcon>
             <HtmlTooltip title={getIconTooltip(wf)} placement="top">
               <img
                 src={
-                  chainOptions.find(
-                    (opt) => opt.value === wf.trigger.input._grinderyChain
-                  )?.icon || ICONS.METAMASK_LOGO
+                  wf.title.includes("Patch Wallet")
+                    ? "/images/icons/patchwallet.png"
+                    : chainOptions.find(
+                        (opt) => opt.value === wf.trigger.input._grinderyChain
+                      )?.icon || ICONS.METAMASK_LOGO
                 }
                 alt="wallet logo"
               />

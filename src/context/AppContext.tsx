@@ -12,11 +12,8 @@ import {
   nearWalletWorkflow,
   subscribeUserAction,
   tokenWorkflow,
-  //unsubscribeUserAction,
   walletWorkflow,
 } from "../constants";
-import { sendTwitterConversion } from "../utils/twitterTracking";
-import { sendGoogleEvent } from "../utils/googleTracking";
 
 // Context props
 type ContextProps = {
@@ -34,6 +31,7 @@ type ContextProps = {
   testResult: string;
   setTestResult: (a: string) => void;
   additionalWorkflows: Workflow[];
+  patchwalletWorkflows: Workflow[];
   addAdditionalWorkflow: (
     a: string,
     b: string,
@@ -48,6 +46,7 @@ type ContextProps = {
   isOptedIn: boolean;
   chekingOptIn: boolean;
   setIsOptedIn: (a: boolean) => void;
+  workflowsLoading: boolean;
 };
 
 // Context provider props
@@ -71,6 +70,7 @@ export const AppContext = createContext<ContextProps>({
   testResult: "",
   setTestResult: defaultFunc,
   additionalWorkflows: [],
+  patchwalletWorkflows: [],
   addAdditionalWorkflow: defaultFunc,
   deleteWorkflow: defaultFunc,
   toggleWorkflow: defaultFunc,
@@ -80,6 +80,7 @@ export const AppContext = createContext<ContextProps>({
   isOptedIn: false,
   chekingOptIn: true,
   setIsOptedIn: () => {},
+  workflowsLoading: true,
 });
 
 export const AppContextProvider = ({ children }: AppContextProps) => {
@@ -132,10 +133,17 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     []
   );
 
+  // Additional patchwallet workflows
+  const [patchwalletWorkflows, setPatchwalletWorkflows] = useState<Workflow[]>(
+    []
+  );
+
   const [accessAllowed, setAccessAllowed] = useState<boolean>(false);
 
   // verification state
   const [verifying, setVerifying] = useState<boolean>(true);
+
+  const [workflowsLoading, setWorkflowsLoading] = useState<boolean>(true);
 
   // handle notification toggle change
   const handleNotificationsChange = (
@@ -189,6 +197,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
   // Get user's workflows
   const getWorkflowsList = useCallback(
     async (userId: string, client: NexusClient) => {
+      setWorkflowsLoading(true);
       const res = await client.workflow.list({});
       if (res) {
         setWorkflows(
@@ -322,6 +331,19 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
       });
     }
 
+    if (chain === "patchwallet") {
+      newWF = walletWorkflow;
+      const input: any = {
+        title: "Grindery Ping notifications for Patch Wallet transaction",
+        "trigger.input.to": address || "",
+        creator: user || "",
+        "actions[0].input.tokens": token ? [token] : [],
+      };
+      Object.keys(input).forEach((path) => {
+        _.set(newWF, path, input[path]);
+      });
+    }
+
     if (EVM_CHAINS.includes(chain)) {
       newWF = walletWorkflow;
       const chainName = BLOCKCHAINS.find((c) => c.value === chain)?.label || "";
@@ -338,6 +360,20 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
     }
 
     saveWorkflow(newWF, userId);
+    if (chain === "patchwallet") {
+      newWF = tokenWorkflow;
+      const input: any = {
+        title:
+          "Grindery Ping notifications for Patch Wallet ERC-20 Token transfer transaction",
+        "trigger.input.to": address || "",
+        creator: user || "",
+        "actions[0].input.tokens": token ? [token] : [],
+      };
+      Object.keys(input).forEach((path) => {
+        _.set(newWF, path, input[path]);
+      });
+      saveWorkflow(newWF, userId);
+    }
     callback();
   };
 
@@ -521,7 +557,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           wf.trigger?.input?.to === wallet &&
           Array.isArray(wf.trigger?.input?._grinderyChain) &&
           wf.actions[0]?.connector === "firebaseCloudMessagingConnector" &&
-          wf.actions[0]?.operation === "fcmPushNotification"
+          wf.actions[0]?.operation === "fcmPushNotification" &&
+          !wf.title.includes("Patch Wallet")
       );
       if (walletNotificationWorkflow) {
         setWalletWorkflowState(walletNotificationWorkflow);
@@ -535,7 +572,8 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           wf.trigger?.input?.to === wallet &&
           Array.isArray(wf.trigger?.input?._grinderyChain) &&
           wf.actions[0]?.connector === "firebaseCloudMessagingConnector" &&
-          wf.actions[0]?.operation === "fcmPushNotification"
+          wf.actions[0]?.operation === "fcmPushNotification" &&
+          !wf.title.includes("Patch Wallet")
       );
       if (tokenNotificationWorkflow) {
         setTokenWorkflowState(tokenNotificationWorkflow);
@@ -558,7 +596,20 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
           !Array.isArray(wf.trigger.input._grinderyChain)
       );
 
+      const patchWalletWFs = workflows.filter(
+        (wf) =>
+          ((wf.trigger?.operation === "TransferTrigger" &&
+            wf.trigger?.connector === "erc20") ||
+            (wf.trigger?.operation === "newTransaction" &&
+              wf.trigger?.connector === "evmWallet")) &&
+          wf.title.includes("Patch Wallet") &&
+          Array.isArray(wf.trigger.input._grinderyChain)
+      );
+
       setAdditionalWorkflows(additionalWFs);
+      setPatchwalletWorkflows(patchWalletWFs);
+
+      setWorkflowsLoading(false);
     }
   }, [workflows, wallet]);
 
@@ -598,6 +649,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         testResult,
         setTestResult,
         additionalWorkflows,
+        patchwalletWorkflows,
         addAdditionalWorkflow,
         deleteWorkflow,
         toggleWorkflow,
@@ -607,6 +659,7 @@ export const AppContextProvider = ({ children }: AppContextProps) => {
         isOptedIn,
         chekingOptIn,
         setIsOptedIn,
+        workflowsLoading,
       }}
     >
       {children}
