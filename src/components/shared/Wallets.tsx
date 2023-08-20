@@ -399,8 +399,6 @@ const Wallets = (props: Props) => {
       patchwalletWorkflows.length < 1 &&
       !workflowsLoading
     ) {
-      console.log("patchwalletWorkflows", patchwalletWorkflows);
-
       setIsAddingWallet(true);
       handleChainChange("patchwallet");
       if (patchwalletParam.startsWith("0x")) {
