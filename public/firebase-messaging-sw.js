@@ -36,7 +36,7 @@ messaging.onBackgroundMessage((payload) => {
       "",
     icon:
       (payload.data && payload.data.icon) ||
-      "https://ping.grindery.org/logo192.png",
+      "https://ping.grindery.com/logo192.png",
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);

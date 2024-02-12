@@ -11,7 +11,10 @@
       of your wallets on any blockchain."
     />
     <!-- Domain verification for Google-->
-    <meta name="google-site-verification" content="afteu_V9_KBUnIFQNu9C2--Faj2aFXrypLbP7hhjVZw" />
+    <meta
+      name="google-site-verification"
+      content="afteu_V9_KBUnIFQNu9C2--Faj2aFXrypLbP7hhjVZw"
+    />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -30,32 +33,51 @@
     <title>Grindery Ping</title>
 
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-MJ9LTQM');</script>
+    <script>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != "dataLayer" ? "&l=" + l : "";
+        j.async = true;
+        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, "script", "dataLayer", "GTM-MJ9LTQM");
+    </script>
     <!-- End Google Tag Manager -->
-    
+
     <!-- Add custom fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
     />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Social sharing preview -->
-    <meta property="og:image" content="https://ping.grindery.org/images/ping-featured-image.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta
+      property="og:image"
+      content="https://ping.grindery.com/images/ping-featured-image.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MJ9LTQM"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-MJ9LTQM"
+        height="0"
+        width="0"
+        style="display: none; visibility: hidden"
+      ></iframe
+    ></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
@@ -71,15 +93,32 @@
     -->
 
     <!-- Start of HubSpot Embed Code -->
-    <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/22257229.js"></script>
+    <script
+      type="text/javascript"
+      id="hs-script-loader"
+      async
+      defer
+      src="//js.hs-scripts.com/22257229.js"
+    ></script>
     <!-- End of HubSpot Embed Code -->
     <!-- Twitter conversion tracking base code -->
     <script>
-      !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
-      },s.version='1.1',s.queue=[],u=t.createElement(n),u.async=!0,u.src='https://static.ads-twitter.com/uwt.js',
-      a=t.getElementsByTagName(n)[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
-      twq('config','ofep3');
-      </script>
-      <!-- End Twitter conversion tracking base code -->
+      !(function (e, t, n, s, u, a) {
+        e.twq ||
+          ((s = e.twq =
+            function () {
+              s.exe ? s.exe.apply(s, arguments) : s.queue.push(arguments);
+            }),
+          (s.version = "1.1"),
+          (s.queue = []),
+          (u = t.createElement(n)),
+          (u.async = !0),
+          (u.src = "https://static.ads-twitter.com/uwt.js"),
+          (a = t.getElementsByTagName(n)[0]),
+          a.parentNode.insertBefore(u, a));
+      })(window, document, "script");
+      twq("config", "ofep3");
+    </script>
+    <!-- End Twitter conversion tracking base code -->
   </body>
 </html>

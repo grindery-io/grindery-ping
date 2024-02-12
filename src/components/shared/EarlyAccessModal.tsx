@@ -265,7 +265,7 @@ const EarlyAccessModal = (props: Props) => {
                   </a>{" "}
                   and{" "}
                   <a
-                    href="https://www.grindery.io/privacy"
+                    href="https://www.grindery.com/privacy"
                     target="_blank"
                     rel="noreferrer"
                   >

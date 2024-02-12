@@ -7,7 +7,7 @@
 Grindery Ping sends you a browser notification when a token is deposited to any
 of your wallets on any blockchain.
 
-Live URL: https://ping.grindery.org/
+Live URL: https://ping.grindery.com/
 
 ## Development
 

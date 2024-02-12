@@ -295,25 +295,25 @@ export const unsubscribeUserAction: Operation = {
 
 export const GRINDERY_APPS = [
   {
-    url: "https://flow.grindery.org/",
+    url: "https://flow.grindery.com/",
     name: "Flow",
     description: "Create workflows witn no-code",
     target: "_blank",
   },
   {
-    url: "https://ping.grindery.org/",
+    url: "https://ping.grindery.com/",
     name: "Ping",
     description: "Receive blockchain notifications",
     target: "_blank",
   },
   {
-    url: "https://gateway.grindery.org/",
+    url: "https://gateway.grindery.com/",
     name: "Gateway",
     description: "Your gateway to web3 no-code",
     target: "_blank",
   },
   {
-    url: "https://network.grindery.org/",
+    url: "https://network.grindery.com/",
     name: "CDS",
     description: "Create Connector Description Schema files",
     target: "_blank",
